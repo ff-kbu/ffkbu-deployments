@@ -1,0 +1,19 @@
+---
+# vars file for base
+base_exim4_config_file: /etc/exim4/update-exim4.conf.conf
+
+base_apt_mirrors_bookworm: |
+  deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }} contrib main non-free-firmware
+  deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }}-updates contrib main non-free-firmware
+  deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }}-backports contrib main non-free-firmware
+  deb http://deb.debian.org/debian-security {{ ansible_distribution_release | lower }}-security contrib main non-free-firmware
+
+base_apt_mirrors_bullseye: |
+  deb http://deb.debian.org/debian/ {{ ansible_distribution_release | lower }} main contrib non-free
+  deb http://deb.debian.org/debian/ {{ ansible_distribution_release | lower }}-updates main contrib non-free
+  deb http://security.debian.org/ {{ ansible_distribution_release | lower }}-security main contrib non-free
+
+base_apt_mirrors_buster: |
+  deb http://deb.debian.org/debian/ {{ ansible_distribution_release | lower }} main contrib non-free
+  deb http://deb.debian.org/debian/ {{ ansible_distribution_release | lower }}-updates main contrib non-free
+  deb http://security.debian.org/ {{ ansible_distribution_release | lower }}/updates main contrib non-free

@@ -1,0 +1,38 @@
+prometheus_docker_rules:
+  # This rule can be very noisy in dynamic infra with legitimate container start/stop/deployment.
+  - alert: ContainerAbsent
+    expr: absent(container_last_seen)
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: '{% raw %}Container absent (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}A container is absent for 5 min\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}'
+
+  - alert: ContainerHighCpuUtilization
+    expr: (sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (pod, container) / sum(container_spec_cpu_quota{container!=""}/container_spec_cpu_period{container!=""}) by (pod, container) * 100) > 80
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: '{% raw %}Container High CPU utilization (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Container CPU utilization is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}'
+
+  # See https://medium.com/faun/how-much-is-too-much-the-linux-oomkiller-and-used-memory-d32186f29c9d
+  - alert: ContainerHighMemoryUsage
+    expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 80
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: '{% raw %}Container High Memory usage (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Container Memory usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}'
+
+  - alert: ContainerVolumeUsage
+    expr: (1 - (sum(container_fs_inodes_free{name!=""}) BY (instance) / sum(container_fs_inodes_total) BY (instance))) * 100 > 80
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: '{% raw %}Container Volume usage (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Container Volume usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}{% endraw %}'

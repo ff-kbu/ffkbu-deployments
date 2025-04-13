@@ -1,0 +1,15 @@
+---
+# handlers file for bird
+- name: apply_sysctl
+  ansible.builtin.command: sysctl --system
+
+- name: check_bird_configuration
+  ansible.builtin.shell: "bird -p -c /etc/bird/bird.conf"
+  tags:
+    - skip_ansible_lint
+
+- name: reload_bird
+  ansible.builtin.systemd:
+    name: bird
+    state: reloaded
+    daemon_reload: true

@@ -1,0 +1,87 @@
+---
+# defaults file for bird
+bird_log_file: /var/log/bird.log
+bird_log_level: all
+bird_router_id: "{{ lo_ffrl_public_ipv4 | ansible.utils.ipaddr('address') }}"
+
+bird_systemd_aware: true
+
+bird_routing_tables:
+  - table: bird_table_1
+    type: ipv4
+  - table: bird_table_2
+    type: ipv6
+
+bird_protocols: []
+  # - protocol: device
+  #   description: Get information about network interfaces
+
+  # - protocol: kernel
+  #   table: main4
+  #   description: Import all ipv4 routes from the kernel
+  #   learn: true
+  #   ipv4:
+  #     - import all
+
+  # - protocol: direct
+  #   description: Create device routes for all network interfaces
+  #   ipv4: true
+  #   ipv6: true
+
+  # - protocol: static
+  #   description: Static route
+  #   ipv4:
+  #     - table bird_table_1
+  #   routes:
+  #     - network: 1.2.3.4
+  #       nexthop: blackhole
+  #       mode: recursive # (optional, 'via' or 'recursive')
+
+  # - protocol: pipe
+  #   description: Pipe route to bird table
+  #   table: master4
+  #   peer_table: bird_table_1
+  #   filter:
+  #     type: export
+  #     acl:
+  #       - rule: net ~ [10.0.0.0/16+]
+  #         action: accept
+  #     default_action: reject
+
+  # - protocol: bgp
+  #   name: new_bgp_session
+  #   description: BGP 1
+  #   multihop: true
+  #   neighbor:
+  #     ip: 10.0.1.3
+  #     as: 1234
+  #   local:
+  #     ip: 172.16.0.1
+  #     as: 5678
+  #   ipv4:
+  #     - import all
+  #     - export all
+  #     - table bird_table_1
+
+  # - protocol: ospf
+  #   name: ospf_session
+  #   description: OSPF
+  #   ipv4:
+  #     - import all
+  #     - |
+  #       export filter {
+  #         if (net ~ [ 10.0.0.0/8 ]) then {
+  #           ospf_metric1 = 10;
+  #           accept;
+  #         }
+  #         accept;
+  #       }
+  #   areas:
+  #     - id: 0.0.0.0
+  #       interfaces:
+  #         - name: gre_ffkbu_*
+  #           type: broadcast
+  #           options:
+  #             - ttl security tx only
+  #             - wait 10
+  #             - cost 1024

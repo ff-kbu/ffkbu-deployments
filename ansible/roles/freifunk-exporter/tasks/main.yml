@@ -1,0 +1,113 @@
+---
+# tasks file for freifunk-exporter
+- name: Check go installation
+  ansible.builtin.shell: "go version"
+  register: go_setup_status
+  ignore_errors: true
+  become_flags: '-i'
+  tags: skip_ansible_lint
+
+- ansible.builtin.fail:
+    msg: "No golang installation found!"
+  when: go_setup_status.failed
+
+- ansible.builtin.assert:
+    that:
+      - freifunk_exporter_data_sources | length
+    msg: "A data url to query node information from is required - check your 'freifunk_exporter_data_sources' variable!"
+
+- name: Check exporter installation
+  ansible.builtin.slurp:
+    src: "{{ freifunk_exporter_base_folder }}/version"
+  register: freifunk_exporter_setup_status
+  ignore_errors: true
+
+- name: Check freifunk_exporter service
+  ansible.builtin.stat:
+    path: /usr/local/bin/freifunk-exporter
+  register: freifunk_exporter_location
+
+- name: "Create group {{ freifunk_exporter_group }}"
+  ansible.builtin.group:
+    name: "{{ freifunk_exporter_group }}"
+  when: not freifunk_exporter_location.stat.exists
+
+- name: "Create user {{ freifunk_exporter_user }}"
+  ansible.builtin.user:
+    name: "{{ freifunk_exporter_user }}"
+    group: "{{ freifunk_exporter_group }}"
+    home: "{{ freifunk_exporter_base_folder }}"
+    shell: /bin/sh
+  when: not freifunk_exporter_location.stat.exists
+
+- name: "Create {{ freifunk_exporter_base_folder }}"
+  ansible.builtin.file:
+    path: "{{ freifunk_exporter_base_folder }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ freifunk_exporter_user }}"
+    group: "{{ freifunk_exporter_group }}"
+
+- name: "Download exporter version {{ freifunk_exporter_version }}"
+  ansible.builtin.unarchive:
+    src: "{{ freifunk_exporter_src_url }}"
+    dest: "{{ freifunk_exporter_base_folder }}"
+    remote_src: true
+    extra_opts: '--strip-components=1'
+    owner: "{{ freifunk_exporter_user }}"
+    group: "{{ freifunk_exporter_group }}"
+  notify: restart_freifunk_exporter
+  when:
+    - freifunk_exporter_setup_status.content is defined
+    - freifunk_exporter_setup_status.content | b64decode != freifunk_exporter_version
+
+- name: Compile exporter
+  ansible.builtin.shell: make
+  args:
+    chdir: "{{ freifunk_exporter_base_folder }}"
+  become_flags: '-i'
+  when:
+    - freifunk_exporter_setup_status.content is defined
+    - freifunk_exporter_setup_status.content | b64decode != freifunk_exporter_version
+  tags: skip_ansible_lint
+
+- name: Set version marker
+  ansible.builtin.copy:
+    content: "{{ freifunk_exporter_version }}"
+    dest: "{{ freifunk_exporter_base_folder }}/version"
+  when:
+    - freifunk_exporter_setup_status.content is defined
+    - freifunk_exporter_setup_status.content | b64decode != freifunk_exporter_version
+
+- name: Create hood configuration files
+  ansible.builtin.copy:
+    content: |
+      DATA_URL={{ item.data_url }}
+      PORT={{ item.port }}
+    dest: "{{ freifunk_exporter_base_folder }}/{{ item.name | regex_replace(' ', '_') }}.conf"
+    mode: "0640"
+    owner: "{{ freifunk_exporter_user }}"
+    group: "{{ freifunk_exporter_group }}"
+  with_items: "{{ freifunk_exporter_data_sources }}"
+  loop_control:
+    label: "{{ item.name | regex_replace(' ', '_') }}"
+
+- name: Create systemd service
+  ansible.builtin.template:
+    src: ff-exporter.service.j2
+    dest: "/etc/systemd/system/ff-exporter@{{ item.name | regex_replace(' ', '_') }}.service"
+    mode: "0640"
+  notify: restart_freifunk_exporter
+  with_items: "{{ freifunk_exporter_data_sources }}"
+  loop_control:
+    label: "{{ item.name | regex_replace(' ', '_') }}"
+
+- name: Enable service
+  ansible.builtin.systemd:
+    name: "ff-exporter@{{ item.name | regex_replace(' ', '_') }}"
+    enabled: true
+    daemon_reload: true
+  notify: restart_freifunk_exporter
+  with_items: "{{ freifunk_exporter_data_sources }}"
+  loop_control:
+    label: "{{ item.name | regex_replace(' ', '_') }}"

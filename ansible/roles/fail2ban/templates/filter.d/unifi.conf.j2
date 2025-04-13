@@ -1,0 +1,7 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[INCLUDES]
+before = common.conf
+[Definition]
+failregex = ^(.*)Failed admin login for (.*) from <HOST>$
+ignoreregex =

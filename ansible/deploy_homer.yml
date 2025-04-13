@@ -1,0 +1,10 @@
+---
+- hosts: homer
+  become: true
+
+  roles:
+    - role: docker
+      tags: docker
+
+    - role: homer
+      tags: homer

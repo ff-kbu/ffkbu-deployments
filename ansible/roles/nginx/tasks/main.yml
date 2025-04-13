@@ -1,0 +1,177 @@
+---
+# tasks file for nginx
+- name: Install required apt packages
+  ansible.builtin.apt:
+    name: "{{ nginx_apt_packages }}"
+    state: present
+
+- name: Install required pip packages
+  ansible.builtin.pip:
+    name: "{{ nginx_pip_packages }}"
+
+- name: Disable service autostart
+  ansible.builtin.copy:
+    content: exit 101
+    dest: /usr/sbin/policy-rc.d
+    mode: "0755"
+    remote_src: true
+
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    update_cache: true
+  register: nginx_setup
+
+- name: Disable IPv6 in default site
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/sites-available/default
+    state: absent
+    regexp: '^[#\s]+listen \[::]:\d+.*$\n'
+  when: nginx_setup.changed
+  tags: skip_ansible_lint
+
+- name: Re-Enable service autostart
+  ansible.builtin.copy:
+    content: exit 0
+    dest: /usr/sbin/policy-rc.d
+    mode: "0755"
+    remote_src: true
+
+- name: Generate dh param
+  ansible.builtin.shell: openssl dhparam -dsaparam -out /etc/nginx/dhparam.pem 4096
+  tags:
+    - skip_ansible_lint
+  when: nginx_setup.changed
+
+- name: Get ulimit
+  ansible.builtin.shell: "ulimit -n"
+  tags:
+    - skip_ansible_lint
+  register: nginx_ulimit
+
+- name: Configure SSL
+  ansible.builtin.template:
+    src: safe_ssl.conf.j2
+    dest: /etc/nginx/conf.d/safe_ssl.conf
+  notify: reload_nginx
+
+- name: Configure custom log format
+  ansible.builtin.template:
+    src: log.conf.j2
+    dest: /etc/nginx/conf.d/log.conf
+  notify:
+    - test_nginx
+    - restart_nginx
+  register: log_config
+
+- ansible.builtin.meta: flush_handlers # required to trigger restart before configs use custom log format
+  when: log_config.changed
+  tags: skip_ansible_lint
+
+- ansible.builtin.include_tasks: static-files.yml
+
+- ansible.builtin.include_tasks: ssl_selfsigned.yml
+  when: deploy_env == 'vag'
+
+- ansible.builtin.include_tasks: ssl_files.yml
+  when: nginx_ssl_certificates | default([]) | length>0
+
+- name: Configure nginx sites
+  ansible.builtin.template:
+    src: site_template.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item.site }}_{{ item.port }}.conf"
+  loop: "{{ nginx_sites }}"
+  notify:
+    - test_nginx
+    - reload_nginx
+  loop_control:
+    label: "{{ item.site }}"
+  tags: only_provision_sites
+
+- name: Configure nginx status site
+  ansible.builtin.template:
+    src: nginx_status.conf.j2
+    dest: "/etc/nginx/sites-available/nginx_status.conf"
+  notify:
+    - test_nginx
+    - reload_nginx
+
+- name: Configure default nginx site
+  ansible.builtin.template:
+    src: 00_default.conf.j2
+    dest: "/etc/nginx/sites-available/00_default.conf"
+  notify:
+    - test_nginx
+    - reload_nginx
+  tags: only_provision_sites
+
+- ansible.builtin.include_tasks: auth.yml
+  loop: "{{ nginx_sites }}"
+  loop_control:
+    loop_var: authlist
+    label: "{{ authlist.site }}"
+  when: deploy_env != "vag"
+
+- name: Cleanup old sites
+  ansible.builtin.shell: rm -r /etc/nginx/sites-enabled/*
+  ignore_errors: true
+  tags:
+    - skip_ansible_lint
+    - only_provision_sites
+
+- name: Enable nginx sites
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ item.site }}_{{ item.port }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item.site }}_{{ item.port }}.conf"
+    state: link
+  loop: "{{ nginx_sites }}"
+  notify:
+    - test_nginx
+    - reload_nginx
+  loop_control:
+    label: "{{ item.site }}"
+  register: nginx_config_state
+  tags: only_provision_sites
+
+- name: Enable nginx status site
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/nginx_status.conf"
+    dest: "/etc/nginx/sites-enabled/nginx_status.conf"
+    state: link
+  notify:
+    - test_nginx
+    - reload_nginx
+  tags: only_provision_sites
+
+- name: Enable nginx default site
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/00_default.conf"
+    dest: "/etc/nginx/sites-enabled/00_default.conf"
+    state: link
+  notify:
+    - test_nginx
+    - reload_nginx
+  tags: only_provision_sites
+
+- name: Copy pam module
+  ansible.builtin.template:
+    src: nginx.j2
+    dest: /etc/pam.d/nginx
+
+- name: Configure nginx
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: www-data
+    mode: "0640"
+  notify:
+    - test_nginx
+    - reload_nginx
+
+# required to enable sites for primary deployments directly
+# when other roles in playbook depend on it
+- ansible.builtin.meta: flush_handlers
+  tags:
+    - skip_ansible_lint
+    - only_provision_sites

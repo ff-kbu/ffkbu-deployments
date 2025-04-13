@@ -1,0 +1,4 @@
+hcloud_labels:
+  type: Servicenode
+
+hcloud_placement_group: grpffkbusv

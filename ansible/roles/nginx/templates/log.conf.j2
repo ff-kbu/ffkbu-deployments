@@ -1,0 +1,10 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+map $http_correlationID $localCorrelationID {
+  default   $http_correlationID;
+  ""        "{{ deploy_env }}-$request_id";
+}
+
+log_format custom '$remote_addr - $remote_user [$time_local] "$request" '
+                  '$status $body_bytes_sent "$http_referer" '
+                  '"$http_user_agent" $localCorrelationID';

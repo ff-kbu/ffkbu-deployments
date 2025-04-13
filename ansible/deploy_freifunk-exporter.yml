@@ -1,0 +1,6 @@
+- hosts: freifunk_exporter
+  become: true
+
+  roles:
+    - role: freifunk-exporter
+      tags: freifunk-exporter

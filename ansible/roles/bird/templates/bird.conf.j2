@@ -1,0 +1,18 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+# vim: set ft=bird nosta noet nofoldenable ts=4 sw=4:
+
+### Set router id
+router id {{ bird_router_id }};
+
+### Define logfile
+log "{{ bird_log_file }}" {{ bird_log_level }};
+
+{% if bird_routing_tables | length %}
+### Bird routing tables
+{% for t in bird_routing_tables %}
+{{ t.type }} table {{ t.table }};
+{% endfor %}
+{% endif %}
+
+include "conf.d/*.conf";

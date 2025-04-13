@@ -1,0 +1,221 @@
+systemd_networkd_network:
+  lo:
+    - Match:
+        - Name: "lo"
+    - Network:
+        - Address: "127.0.0.1/8"
+        - Address: "::1/128"
+
+    # ip rules to push responses to ffkbu public ips into ffrl routing table (routing to clients)
+    - RoutingPolicyRule:
+        - From: "{{ ffrl_public_network_ipv4 }}"
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: "{{ ffrl_public_network_ipv4 }}"
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: "{{ ffrl_public_network_ipv6 }}"
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: "{{ ffrl_public_network_ipv6 }}"
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+
+    # local networks
+    - RoutingPolicyRule:
+        - From: 10.1.0.0/16
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.1.0.0/16
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.3.0.0/16
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.3.0.0/16
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.4.0.0/16
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.4.0.0/16
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    # ip rules to push wireguard tunnels into ffrl table
+    ### 10.1xx.xxx.xxx range for local edgerouter ip-spaces
+    - RoutingPolicyRule:
+        - From: 10.100.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.100.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.104.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.104.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.108.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.108.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.112.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.112.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.116.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.116.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.120.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.120.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.124.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.124.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.128.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.128.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.132.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.132.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+
+    ### ipv6
+    - RoutingPolicyRule:
+        - From: 2a03:2260:101a:100::/56
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 2a03:2260:101a:100::/56
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 2a03:2260:101a:140::/64
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 2a03:2260:101a:140::/64
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+
+    ### 10.2xx.xxx.xxx range for client ip space behind edgerouters
+    - RoutingPolicyRule:
+        - From: 10.200.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.200.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.204.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.204.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.208.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.208.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.212.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.212.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.216.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.216.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.220.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.220.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.224.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.224.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.228.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.228.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 10.232.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 10.232.0.0/14
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+
+    ### ipv6
+    - RoutingPolicyRule:
+        - From: 2a03:2260:101a:200::/56
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 2a03:2260:101a:200::/56
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - From: 2a03:2260:101a:240::/64
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    - RoutingPolicyRule:
+        - To: 2a03:2260:101a:240::/64
+        - Table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+
+  eth0:
+    - Match:
+        - Name: "eth0"
+    - Network:
+        - DHCP: "yes"
+        - IPv6AcceptRouterAdvertisements: "no"
+        - DNS: "{{ ffkbu_ip_sv_vmffkbusv01 }}"
+        - DNS: "{{ ffkbu_ip_sv_vmffkbusv02 }}"
+        - Domains: "{{ ffkbu_domain_int }}"
+        - Address: "{{ eth0_public_ipv4 }}"
+        - Address: "{{ eth0_public_ipv6 }}"
+        - Gateway: "fe80::1"
+    - DHCPv4:
+        - UseDNS: "no"
+
+  eth1:
+    - Match:
+        - Name: "eth1"
+    - Network:
+        - DHCP: "ipv4"
+        - IPv6AcceptRouterAdvertisements: "no"
+        - Address: "{{ eth1_internal_ip }}"
+    - Route:
+        - Gateway: "{{ ffkbu_gateway }}"
+        - Destination: "10.0.0.0/16"
+        - GatewayOnlink: "yes"
+    - DHCPv4:
+        - UseDNS: "no"
+
+  gre_ffkbu_en:
+    - Match:
+        - Name: "gre_ffkbu_en"
+    - Network:
+        - Address: "{{ ffkbu_gre | selectattr('name', 'eq', 'gre_ffkbu_en') | map(attribute='local.ipv4') | first }}"
+        - Address: "{{ ffkbu_gre | selectattr('name', 'eq', 'gre_ffkbu_en') | map(attribute='local.ipv6') | first }}"
+        - Address: "{{ ospf_link_local_address_ipv6 }}"
+    - Link:
+        - Multicast: true
+        - MTUBytes: 1476

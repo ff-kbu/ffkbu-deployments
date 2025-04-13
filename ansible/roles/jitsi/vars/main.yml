@@ -1,0 +1,4 @@
+---
+# vars file for jitsi
+jitsi_docker_directory: /opt/jitsi/docker
+jitsi_config_directory: /opt/jitsi/config

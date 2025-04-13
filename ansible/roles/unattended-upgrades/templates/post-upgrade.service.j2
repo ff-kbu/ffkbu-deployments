@@ -1,0 +1,19 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[Unit]
+Description=Triggered by post-upgrade.path
+
+[Service]
+Type=simple
+ExecStart={% for cmd in unattended_post_commands %}
+{% if loop.first %}
+/bin/bash -c '{{ cmd }}{% if not loop.last %} &&\{% endif %}
+{% elif loop.last %}
+          {{ cmd }}
+{% else %}
+          {{ cmd }} &&\
+{% endif %}
+{% endfor %}'
+
+[Install]
+WantedBy=default.target

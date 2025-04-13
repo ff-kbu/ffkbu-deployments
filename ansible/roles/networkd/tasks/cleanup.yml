@@ -1,0 +1,44 @@
+---
+# This has been adapted from code in OpenStack Ansible's systemd_networkd role.
+# https://github.com/openstack/ansible-role-systemd_networkd/blob/master/tasks/main.yml
+
+- name: Find unexpected systemd-networkd configuration files
+  ansible.builtin.find:
+    paths: /etc/systemd/network
+    patterns: "{{ systemd_networkd_cleanup_patterns }}"
+    use_regex: "{{ systemd_networkd_cleanup_patterns_use_regex | bool }}"
+  register: networkd_files
+
+- name: Remove unexpected systemd-networkd configuration files
+  vars:
+    expected_files:
+      - "{{ systemd_networkd_link.keys() | map('regex_replace', '^(.*)$', '\\1.link') | list }}"
+      - "{{ systemd_networkd_netdev.keys() | map('regex_replace', '^(.*)$', '\\1.netdev') | list }}"
+      - "{{ systemd_networkd_network.keys() | map('regex_replace', '^(.*)$', '\\1.network') | list }}"
+  ansible.builtin.file:
+    path: /etc/systemd/network/{{ item }}
+    state: absent
+  loop: "{{ networkd_files.files | map(attribute='path') | map('basename') | difference(expected_files | flatten) | list }}"
+  notify:
+    - Restart systemd-networkd
+
+- name: Check for legacy network configurations
+  ansible.builtin.find:
+    path: /etc/network/interfaces.d
+  register: legacy_network_files
+
+- name: Create backup of legacy network configurations
+  ansible.builtin.copy:
+    src: /etc/network/interfaces.d/
+    dest: /etc/network/interfaces.d.old/
+    remote_src: true
+  when: legacy_network_files.files | default([]) | length
+
+- name: Remove legacy network configurations
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ legacy_network_files.files }}"
+  when: legacy_network_files.files | default([]) | length
+  notify:
+    - Restart systemd-networkd

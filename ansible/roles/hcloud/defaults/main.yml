@@ -1,0 +1,43 @@
+---
+# defaults file for hcloud
+
+hcloud_labels_global: []
+  # - global1
+  # - global2
+
+hcloud_networks: []
+  # - name: mynetwork
+  #   ip_range: 10.0.0.0/16
+  #   subnetworks:
+  #     - 10.0.1.0/24
+  #   labels:
+  #     type: mynetlabel
+
+hcloud_backups: true
+
+hcloud_server_type: "" # (e.g. cx21)
+hcloud_location: "" # (e.g. nbg1, fsn1)
+hcloud_image: "" # (e.g. debian-12)
+hcloud_ssh_keys: []
+
+hcloud_enable_ipv4: true
+hcloud_enable_ipv6: true
+
+hcloud_private_networks: []
+  # - name: my_network
+  #   ip: 1.2.3.4
+
+hcloud_floating_ips: []
+  # - name: myipv4floatingip
+  #   type: ipv4
+  # - name: myipv6floatingip
+  #   type: ipv6
+
+hcloud_user_data: "" # (eg. #cloud-config, use multiline pipe)
+  #|
+  #cloud-config
+
+hcloud_labels: "" # hcloud object label
+  # type: mylabel
+
+hcloud_placement_group: null # hcloud speading group

@@ -1,0 +1,10 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% for p in bird_protocols | selectattr('protocol', 'eq', 'direct') %}
+{{ '### ' + p.description if p.description is defined }}
+protocol direct {
+  {{ 'ipv4;' | default(false) if p.ipv4 }}
+  {{ 'ipv6;' | default(false) if p.ipv6 }}
+}
+
+{% endfor %}

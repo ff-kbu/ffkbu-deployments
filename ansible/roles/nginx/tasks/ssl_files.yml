@@ -1,0 +1,9 @@
+- name: Make sure SSL certificate is existing and secured
+  ansible.builtin.copy:
+    content: "{{ item.content }}"
+    dest: "{{ item.dest | mandatory }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode  | default('0600') }}"
+  no_log: true
+  loop: "{{  nginx_ssl_certificates  }}"

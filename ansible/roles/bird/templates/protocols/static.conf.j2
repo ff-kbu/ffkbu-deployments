@@ -1,0 +1,36 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% for p in bird_protocols | selectattr('protocol', 'eq', 'static') %}
+{{ '### ' + p.description if p.description is defined }}
+protocol static {
+  {% if p.ipv4 is defined %}
+  {% if p.ipv4 | bool %}
+  ipv4;
+  {% else %}
+  ipv4 {
+  {% for o in p.ipv4 | default([]) %}
+  {{ o }};
+  {% endfor %}
+  };
+  {% endif %}
+  {% for r in p.routes | default([]) %}
+  route {{ r.network }} {{ ' ' + r.mode + ' ' if r.mode is defined }} {{ r.nexthop }};
+  {% endfor %}
+  {% endif %}
+  {% if p.ipv6 is defined %}
+  {% if p.ipv6 | bool %}
+  ipv6;
+  {% else %}
+  ipv6 {
+  {% for o in p.ipv6 | default([]) %}
+  {{ o }};
+  {% endfor %}
+  };
+  {% endif %}
+  {% for r in p.routes | default([]) %}
+  route {{ r.network }} {{ ' ' + r.mode + ' ' if r.mode is defined }} {{ r.nexthop }};
+  {% endfor %}
+  {% endif %}
+}
+
+{% endfor %}

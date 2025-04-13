@@ -1,0 +1,16 @@
+---
+- hosts: mon
+  become: true
+
+  roles:
+    - role: docker
+      tags: docker
+
+    - role: prometheus
+      tags: prometheus
+
+    - role: alertmanager
+      tags: alertmanager
+
+    - role: grafana
+      tags: grafana

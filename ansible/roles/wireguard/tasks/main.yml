@@ -1,0 +1,82 @@
+---
+- name: Populate service facts.
+  service_facts:
+
+- name: Ensure wireguard installed
+  ansible.builtin.apt:
+    name: wireguard
+    update_cache: true
+
+- name: Create Wireguard private key directory
+  ansible.builtin.file:
+    dest: "{{ wireguard_private_key_dir }}"
+    state: directory
+    owner: root
+    group: systemd-network
+    mode: "0750"
+
+- name: Create Wireguard client configurations directory
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    owner: root
+    group: systemd-network
+    mode: "0750"
+  loop: "{{ wireguard_interfaces | map(attribute='wireguard_clients_dir') | list | unique }}"
+
+- name: Read current wireguard intefaces
+  ansible.builtin.shell: "wg show interfaces | tr ' ' '\n'"
+  register: wg_current_interfaces
+  changed_when: false
+  tags: skip_ansible_lint
+
+- name: Remove obsolete wireguard interface configurations
+  ansible.builtin.shell: "rm -f {{ wireguard_private_key_dir }}/{{ item }}.*"
+  loop: "{{ wg_current_interfaces.stdout_lines | ansible.builtin.difference(wireguard_interfaces | map(attribute='interface') | list ) }}"
+  when: wg_current_interfaces.stdout_lines | default([]) | length
+  notify: Restart systemd-networkd
+  tags:
+    - skip_ansible_lint
+
+- name: Remove obsolete wireguard interfaces
+  ansible.builtin.shell: "ip link del {{ item }}"
+  loop: "{{ wg_current_interfaces.stdout_lines | ansible.builtin.difference(wireguard_interfaces | map(attribute='interface') | list ) }}"
+  when: wg_current_interfaces.stdout_lines | default([]) | length
+  notify: Restart systemd-networkd
+  tags:
+    - skip_ansible_lint
+
+- name: Remove obsolete wireguard private keys
+  ansible.builtin.file:
+    path: "{{ wireguard_private_key_dir }}/{{ item }}"
+    state: absent
+  loop: "{{ wg_current_interfaces.stdout_lines | ansible.builtin.difference(wireguard_interfaces | map(attribute='interface') | list ) }}"
+  notify: Restart systemd-networkd
+  when: wg_current_interfaces.stdout_lines | default([]) | length
+
+- name: Create private key file
+  ansible.builtin.copy:
+    content: "{{ item.private_key }}"
+    dest: "{{ wireguard_private_key_dir }}/{{ item.interface }}"
+    mode: "0640"
+    owner: root
+    group: systemd-network
+  loop: "{{ wireguard_interfaces }}"
+  loop_control:
+    label: "{{ item.interface }}"
+
+- ansible.builtin.include_tasks: interface.yml
+  loop: "{{ wireguard_interfaces }}"
+  loop_control:
+    label: "{{ item.interface }}"
+
+- ansible.builtin.include_tasks: dynv6.yml
+  when: wireguard_dynv6_update
+  tags: dynv6-updater
+
+- name: Reload bird
+  ansible.builtin.systemd:
+    name: bird
+    state: reloaded
+  when:
+    - '"bird.service" in services'

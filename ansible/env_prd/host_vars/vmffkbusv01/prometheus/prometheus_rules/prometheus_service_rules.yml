@@ -1,0 +1,49 @@
+prometheus_service_rules:
+  - alert: nginxServiceStatus
+    expr: 'node_systemd_unit_state{name="nginx.service", state=~"failed|inactive"} > 0'
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}Service {{ $labels.name }} has entered state {{ $labels.state }} on {{ $labels.instance }}.{% endraw %}'
+      summary: '{% raw %}Service {{ $labels.name }} failed on {{ $labels.instance }}{% endraw %}'
+  - alert: exporterServiceStatus
+    expr: 'node_systemd_unit_state{name=~".*[_-]exporter.service", state=~"failed|inactive"} > 0'
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}Exporter {{ $labels.name }} has entered state {{ $labels.state }} on {{ $labels.instance }}.{% endraw %}'
+      summary: '{% raw %}Exporter {{ $labels.name }} failed on {{ $labels.instance }}{% endraw %}'
+  - alert: radvdServiceStatus
+    expr: 'node_systemd_unit_state{name="radvd.service", state=~"failed|inactive"} > 0'
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}Service {{ $labels.name }} has entered state {{ $labels.state }} on {{ $labels.instance }}.{% endraw %}'
+      summary: '{% raw %}Service {{ $labels.name }} failed on {{ $labels.instance }}{% endraw %}'
+  - alert: dnsmasqServiceStatus
+    expr: 'node_systemd_unit_state{name="dnsmasq.service", state=~"failed|inactive"} > 0'
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}Service {{ $labels.name }} has entered state {{ $labels.state }} on {{ $labels.instance }}.{% endraw %}'
+      summary: '{% raw %}Service {{ $labels.name }} failed on {{ $labels.instance }}{% endraw %}'
+  - alert: fastdServiceStatus
+    expr: 'node_systemd_unit_state{name="fastd.service", state=~"failed|inactive"} > 0'
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}Service {{ $labels.name }} has entered state {{ $labels.state }} on {{ $labels.instance }}.{% endraw %}'
+      summary: '{% raw %}Service {{ $labels.name }} failed on {{ $labels.instance }}{% endraw %}'
+  - alert: babeldServiceStatus
+    expr: 'node_systemd_unit_state{name="babeld.service", state=~"failed|inactive"} > 0'
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}Service {{ $labels.name }} has entered state {{ $labels.state }} on {{ $labels.instance }}.{% endraw %}'
+      summary: '{% raw %}Service {{ $labels.name }} failed on {{ $labels.instance }}{% endraw %}'

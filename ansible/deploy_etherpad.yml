@@ -1,0 +1,13 @@
+---
+- hosts: etherpad
+  become: true
+
+  roles:
+    - role: docker
+      tags: docker
+
+    - role: nginx
+      tags: nginx
+
+    - role: etherpad
+      tags: etherpad

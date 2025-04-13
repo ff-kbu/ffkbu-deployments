@@ -1,0 +1,295 @@
+---
+nginx_disable_cache_tweaks: true
+
+nginx_sites:
+  - site: sv01.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host"
+
+  - site: grafana.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host"
+
+  - site: meet.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host"
+
+  - site: pad.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host"
+
+  - site: service.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host"
+
+  - site: sv01.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv01.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv01.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: return
+            value: 403
+      - path: /portainer/
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:9000/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+          - name: add_header
+            value: Permissions-Policy "none"
+      - path: /status
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:8881/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+          - name: add_header
+            value: Permissions-Policy "none"
+          - name: add_header
+            value: Access-Control-Allow-Origin https://service.kbu.freifunk.net
+
+
+  - site: grafana.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv01.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv01.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:3000/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: limit_req
+            value: zone=limit_zone burst=20
+          - name: limit_req_status
+            value: 429
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: Feature-Policy "none"
+          - name: add_header
+            value: Permissions-Policy "none"
+
+      - path: /prometheus/
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:9090/prometheus/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: limit_req
+            value: zone=limit_zone burst=20
+          - name: limit_req_status
+            value: 429
+        auth:
+          - user: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;ffkbu
+              62306461323331353031393734396337366530306634666234393235353562663061356237353336
+              3963643930353966343237373331323265663933616662350a306563333531633939316439323965
+              39306239363535383032333261396434623138636530353538653638613739643730313533626435
+              6331666264663839320a306465613836656637333630386562366632653931613161633864373831
+              6333
+            password: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;ffkbu
+              36333434616530346131383065313238343430343638316561653133656539653839616135613234
+              6238623266643965363536623063333839333264613638300a643163306166336436396666346135
+              38386235383837316336376337393136353939303065616138363665616534626364663938383931
+              6231383235346430330a613930393235333234386231343062633637393363623033613666353235
+              62393835656332306535366662336535663931643965626234393165343564306338
+      - path: /alertmanager/
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:9093/alertmanager/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: limit_req
+            value: zone=limit_zone burst=20
+          - name: limit_req_status
+            value: 429
+        auth:
+          - user: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;ffkbu
+              33653935303036373864643138333536313665393130373463323665313936616363316163306330
+              6566353235626138353563653031393966326132303066310a613632396465396437393561346533
+              64356566313961353761656236303537643337643932616134353534396539653037636133376566
+              6666333034376533630a646135633130343339326330343362396665306239366435626637616435
+              3736
+            password: !vault |
+              $ANSIBLE_VAULT;1.2;AES256;ffkbu
+              37366130316634616162363138303632656630316361626232313931363735646333356536363231
+              6563653763373466393962343064373132353139646337610a666638623163663035643765376133
+              30343962323737323034393066326631633733316131383434386465656166646462346238363634
+              6164333561393134630a373336616163396433333366633463323939393566393132373839336136
+              32633565313330636539313436333331363634323763626565383561646364313765
+
+  - site: meet.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv01.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv01.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:8000"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+
+      - path: /xmpp-websocket
+        extravars:
+          - name: proxy_pass
+            value: http://localhost:8000
+          - name: proxy_http_version
+            value: 1.1
+          - name: proxy_set_header
+            value: Upgrade $http_upgrade
+          - name: proxy_set_header
+            value: Connection "upgrade"
+
+      - path: /colibri-ws
+        extravars:
+          - name: proxy_pass
+            value: http://localhost:8000
+          - name: proxy_http_version
+            value: 1.1
+          - name: proxy_set_header
+            value: Upgrade $http_upgrade
+          - name: proxy_set_header
+            value: Connection "upgrade"
+
+  - site: pad.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv01.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv01.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:9001/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: proxy_http_version
+            value: 1.1
+          - name: proxy_set_header
+            value: Upgrade $http_upgrade
+          - name: proxy_set_header
+            value: Connection "upgrade"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+          - name: add_header
+            value: Permissions-Policy "none"
+
+  - site: service.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv01.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv01.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:8999/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: proxy_http_version
+            value: 1.1
+          - name: proxy_set_header
+            value: Upgrade $http_upgrade
+          - name: proxy_set_header
+            value: Connection "upgrade"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+          - name: add_header
+            value: Permissions-Policy "none"
+
+  - site: inventory.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv01.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv01.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:8111/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: proxy_set_header
+            value: X-Forwarded-Proto $scheme

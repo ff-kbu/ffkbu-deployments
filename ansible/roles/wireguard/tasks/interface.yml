@@ -1,0 +1,26 @@
+- name: Wireguard netdev configuration
+  ansible.builtin.template:
+    src: templates/wg.netdev.j2
+    dest: "/etc/systemd/network/{{ item.interface }}.netdev"
+    group: systemd-network
+    mode: "0640"
+  notify: Restart systemd-networkd
+
+- name: Wireguard network configuration
+  ansible.builtin.template:
+    src: templates/wg.network.j2
+    dest: "/etc/systemd/network/{{ item.interface }}.network"
+    group: systemd-network
+    mode: "0644"
+  notify: Restart systemd-networkd
+
+- name: Create Wireguard client configuration files
+  ansible.builtin.template:
+    dest: "{{ item.wireguard_clients_dir }}/{{ config.name }}.conf"
+    src: templates/client.j2
+    mode: "0600"
+  loop: "{{ item.wireguard_clients }}"
+  loop_control:
+    loop_var: config
+    label: "{{ config.name }}"
+  when: item.wireguard_clients_dir is defined

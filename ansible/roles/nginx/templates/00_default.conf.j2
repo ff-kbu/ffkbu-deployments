@@ -1,0 +1,8 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+server {
+  listen 80 default_server;
+  server_name _;
+  return 404;
+  add_header X-info "These are not the droids you're looking for" always;
+}

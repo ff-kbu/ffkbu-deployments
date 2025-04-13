@@ -1,0 +1,3 @@
+---
+# vars file for docker
+docker_watchtower_image: containrrr/watchtower:latest

@@ -1,0 +1,50 @@
+---
+# tasks file for nginx-exporter
+- name: Create the node_exporter group
+  ansible.builtin.group:
+    name: "{{ nginx_exporter_group }}"
+    state: present
+    system: true
+  when: nginx_exporter_group != "root"
+
+- name: Create the node_exporter user
+  ansible.builtin.user:
+    name: "{{ nginx_exporter_user }}"
+    groups: "{{ nginx_exporter_group }}"
+    append: true
+    shell: /usr/sbin/nologin
+    system: true
+    createhome: false
+    home: "{{ nginx_exporter_basdir }}"
+  when: nginx_exporter_user != "root"
+
+- name: Create nginx exporter basedir
+  ansible.builtin.file:
+    path: "{{ nginx_exporter_basdir }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ nginx_exporter_user }}"
+    group: "{{ nginx_exporter_group }}"
+
+- name: "Download nginx exporter {{ nginx_exporter_version }}"
+  ansible.builtin.unarchive:
+    src: "{{ nginx_exporter_url }}"
+    dest: "{{ nginx_exporter_basdir }}"
+    mode: "0750"
+    remote_src: true
+    owner: "{{ nginx_exporter_user }}"
+    group: "{{ nginx_exporter_group }}"
+  notify: restart_nginx_exporter
+
+- name: Install nginx exporter service
+  ansible.builtin.template:
+    src: nginx_exporter.service.j2
+    dest: /etc/systemd/system/nginx_exporter.service
+    mode: "0640"
+  notify: restart_nginx_exporter
+
+- name: Add restart cronjob
+  ansible.builtin.cron:
+    name: check_nginx_exporter
+    minute: "*/5"
+    job: systemctl is-active --quiet nginx_exporter || systemctl restart nginx_exporter

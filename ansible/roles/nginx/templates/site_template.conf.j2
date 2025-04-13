@@ -1,0 +1,91 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+server {
+  server_name {{ item.site }}{% if item.aliases is defined %} {{ item.aliases|join(' ') }}{% endif %};
+  listen {{ item.port }}{% if item.ssl is defined and item.ssl %} ssl{% endif %};
+  {% if nginx_use_ipv6 | bool %}
+  listen [::]:{{ item.port }}{% if item.ssl is defined and item.ssl %} ssl{% endif %};
+  {% endif %}
+  {{ 'root ' + item.root + ';' if item.root is defined else '' }}
+  {% if item.ssl | default(false) %}
+    ssl_certificate {{ item.ssl_cert }};
+    ssl_certificate_key {{ item.ssl_key}};
+    {% if item.ssl_support_sslv3 | default(false) %}
+    ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers ALL:!aNULL:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
+    {% else %}
+    ssl_ciphers EECDH+AESGCM:EDH+AESGCM;
+    {% endif %}
+    ssl_session_cache shared:SSL:10m;
+    ssl_ecdh_curve secp384r1;
+    ssl_session_tickets off;
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header correlationID $localCorrelationID always;
+    {% if item.ssl_cert_with_ca is defined %}
+      ssl_stapling on;
+      ssl_stapling_verify on;
+      ssl_trusted_certificate {{ item.ssl_cert_with_ca }};
+    {% endif %}
+    {% if item.extravars is defined %}
+      {% for e in item.extravars %}
+        {{ e.name }} {{ e.value }};
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  {% if item.redirect_url is defined %}
+    return 301 {{ item.redirect_url }}$request_uri;
+  {% endif %}
+  {% if item.access_rules is defined %}
+  {% for r in item.access_rules %}
+  {{ r.type }} {{ r.address }};
+  {% endfor %}
+  {% endif %}
+  {% if item.locations is defined %}
+    {% for l in item.locations %}
+      location {{ l.path }} {
+        {% if l.extravars | default([]) | selectattr('name', 'match', 'proxy_pass') | list | length == 0 %}
+        {{ 'index ' + l.index if l.index is defined else 'try_files $uri $uri/ /index.html' }};
+        {% endif %}
+        {% if l.destination is defined %}
+          {{ 'alias ' + l.destination | regex_replace('^(.+(?<!/))$','\\1/') if l.destination is defined else '' }};
+        {% endif %}
+        {% if l.extravars is defined %}
+          {% for e in l.extravars %}
+            {{ e.name }} {{ e.value }};
+          {% endfor %}
+        {% endif %}
+        expires -1;
+        {% if l.auth is defined %}
+        auth_basic “Authorization\ Required”;
+        auth_basic_user_file {{ nginx_auth_path }}/.auth_{{ item.site | regex_replace('(www\\.)?(.*)','\\2') }};
+        {% endif %}
+        {% if l.conditions is defined %}
+        {% for c in l.conditions %}
+        if ({{ c.condition | mandatory }}) {
+          {% for a in c.actions %}
+          {{ a }};
+          {% endfor %}
+        }
+        {% endfor %}
+        {% endif %}
+      }
+    {% endfor %}
+    {% if not nginx_disable_cache_tweaks and not item.nginx_disable_cache_tweaks | default(false) %}
+    {% include 'cache_tweaks.j2' %}
+    {% endif %}
+
+    {# !!!KEEP SPACE ABOVE!!! #}
+  {% endif %}
+  {% if nginx_syslog_server != "" %}
+  error_log syslog:server={{ nginx_syslog_server }},facility=local3,tag=nginx,nohostname,severity=error;
+  {% if nginx_use_access_log | bool %}
+  access_log syslog:server={{ nginx_syslog_server }},facility=local7,tag=nginx,nohostname,severity=info custom;
+  {% endif %}
+  {% endif %}
+  error_log /var/log/nginx/{{ item.site }}.err;
+  {% if nginx_use_access_log | bool %}
+  access_log /var/log/nginx/{{ item.site }}.log custom;
+  {% endif %}
+}

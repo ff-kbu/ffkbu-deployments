@@ -1,0 +1,15 @@
+- name: Setup | Run watchtower docker container
+  community.docker.docker_container:
+    name: watchtower
+    image: "{{ docker_watchtower_image }}"
+    pull: true
+    restart_policy: always
+    restart: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env:
+      WATCHTOWER_LABEL_ENABLE: "{{ docker_watchtower_update_only_labeld_container | bool | lower }}"
+      WATCHTOWER_CLEANUP: "{{ docker_watchtower_cleanup_old_images | bool | lower }}"
+      WATCHTOWER_SCHEDULE: "{{ docker_watchtower_schedule }}"
+      WATCHTOWER_RUN_ONCE: "{{ docker_watchtower_run_only_once | bool | lower }}"
+  tags: watchtower

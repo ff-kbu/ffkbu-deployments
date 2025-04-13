@@ -1,0 +1,24 @@
+---
+- name: textfile-collector | Install required packages
+  ansible.builtin.apt:
+    name: moreutils
+    state: present
+
+- name: textfile-collector | Creates directory for Scripts
+  ansible.builtin.file:
+    path: "{{ node_exporter_textfile_scripts_dir }}"
+    state: directory
+    owner: "{{ node_exporter_system_user }}"
+    group: "{{ node_exporter_system_group }}"
+    mode: '0750'
+
+- name: textfile-collector | Install {{ ansible_distribution }} Distribution Scripts
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ node_exporter_textfile_scripts_dir }}/{{ item | basename | regex_replace ('(.*)\\.j2','\\1') }}"
+    owner: "{{ node_exporter_system_user }}"
+    group: "{{ node_exporter_system_group }}"
+    mode: '0750'
+  with_fileglob:
+    - "templates/textfile-collector/scripts/{{ ansible_distribution }}/*.sh.j2"
+  when: (role_path + '/templates/textfile-collector/scripts/' + ansible_distribution) is directory

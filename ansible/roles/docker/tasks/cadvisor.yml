@@ -1,0 +1,28 @@
+---
+- name: cadvisor | Flush handlers to allow cadvisor container to be started
+  ansible.builtin.meta: flush_handlers
+  tags: cadvisor
+  when: docker_cadvisor_active
+
+- name: cadvisor | Run cadvisor docker container
+  community.docker.docker_container:
+    name: cadvisor
+    image: "gcr.io/cadvisor/cadvisor:v{{ docker_cadvisor_version }}"
+    pull: true
+    restart_policy: always
+    restart: true
+    privileged: true
+    labels:
+      com.centurylinklabs.watchtower.enable: "{{ docker_watchtower_active | lower }}"
+    devices:
+      - /dev/kmsg:/dev/kmsg:rwm
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /sys:/sys:ro
+      - /dev/disk/:/dev/disk:ro
+    published_ports:
+      - "{{ docker_cadvisor_port }}:8080"
+  tags: cadvisor
+  when: docker_cadvisor_active

@@ -1,0 +1,180 @@
+bird_protocols_bgp:
+  - protocol: bgp
+    name: ffrl_ber_1_v4
+    description: BGP FFRL ber1 ipv4
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_1') | map(attribute='remote.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_1') | map(attribute='local.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv4:
+      - import all
+      - export all
+      - table ffkbu_table_4
+
+  - protocol: bgp
+    name: ffrl_ber_1_v6
+    description: BGP FFRL ber1 ipv6
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_1') | map(attribute='remote.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_1') | map(attribute='local.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv6:
+      - import all
+      - export all
+      - table ffkbu_table_6
+
+  - protocol: bgp
+    name: ffrl_ber_2_v4
+    description: BGP FFRL ber2 ipv4
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_2') | map(attribute='remote.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_2') | map(attribute='local.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv4:
+      - import all
+      - export all
+      - table ffkbu_table_4
+
+  - protocol: bgp
+    name: ffrl_ber_2_v6
+    description: BGP FFRL ber2 ipv6
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_2') | map(attribute='remote.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_2') | map(attribute='local.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv6:
+      - import all
+      - export all
+      - table ffkbu_table_6
+
+  - protocol: bgp
+    name: ffrl_dus_1_v4
+    description: BGP FFRL dus1 ipv4
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_1') | map(attribute='remote.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_1') | map(attribute='local.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv4:
+      - import all
+      - export all
+      - table ffkbu_table_4
+
+  - protocol: bgp
+    name: ffrl_dus_1_v6
+    description: BGP FFRL dus1 ipv6
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_1') | map(attribute='remote.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_1') | map(attribute='local.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv6:
+      - import all
+      - export all
+      - table ffkbu_table_6
+
+  - protocol: bgp
+    name: ffrl_dus_2_v4
+    description: BGP FFRL dus2 ipv4
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_2') | map(attribute='remote.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_2') | map(attribute='local.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv4:
+      - import all
+      - export all
+      - table ffkbu_table_4
+
+  - protocol: bgp
+    name: ffrl_dus_2_v6
+    description: BGP FFRL dus2 ipv6
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_2') | map(attribute='remote.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_2') | map(attribute='local.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv6:
+      - import all
+      - export all
+      - table ffkbu_table_6
+
+  - protocol: bgp
+    name: ffrl_fra_1_v4
+    description: BGP FFRL fra1 ipv4
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_1') | map(attribute='remote.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_1') | map(attribute='local.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv4:
+      - import all
+      - export all
+      - table ffkbu_table_4
+
+  - protocol: bgp
+    name: ffrl_fra_1_v6
+    description: BGP FFRL fra1 ipv6
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_1') | map(attribute='remote.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_1') | map(attribute='local.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv6:
+      - import all
+      - export all
+      - table ffkbu_table_6
+
+  - protocol: bgp
+    name: ffrl_fra_2_v4
+    description: BGP FFRL fra2 ipv4
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_2') | map(attribute='remote.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_2') | map(attribute='local.ipv4') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv4:
+      - import all
+      - export all
+      - table ffkbu_table_4
+
+  - protocol: bgp
+    name: ffrl_fra_2_v6
+    description: BGP FFRL fra2 ipv6
+    multihop: true
+    neighbor:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_2') | map(attribute='remote.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_remote }}"
+    local:
+      ip: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_2') | map(attribute='local.ipv6') | first | ansible.utils.ipaddr('address') }}"
+      as: "{{ ffrl_as_local }}"
+    ipv6:
+      - import all
+      - export all
+      - table ffkbu_table_6

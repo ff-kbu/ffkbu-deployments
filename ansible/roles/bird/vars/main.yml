@@ -1,0 +1,4 @@
+---
+# vars file for bird
+bird_user: bird
+bird_group: bird

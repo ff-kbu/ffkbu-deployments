@@ -1,0 +1,8 @@
+---
+# defaults file for uisp
+uisp_git_repo_branch: master
+uisp_version: latest
+uisp_home_dir: /opt/uisp
+uisp_http_port: 80
+uisp_https_port: 443
+uisp_user: uisp

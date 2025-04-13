@@ -1,0 +1,65 @@
+name: Lint
+
+on:
+  pull_request:
+    paths:
+      - '**/*.sh'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '**/*.j2'
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      ansible: ${{ steps.filter.outputs.ansible }}
+      shell: ${{ steps.filter.outputs.shell }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Filter changed files
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            ansible:
+              - '**/*.yml'
+              - '**/*.yaml'
+              - '**/*.j2'
+            shell:
+              - '**/*.sh'
+
+  verify_ansible:
+    needs: changes
+    if: needs.changes.outputs.ansible == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+
+      - name: Install Ansible and Ansible Lint
+        run: |
+          pip install ansible ansible-lint
+          ansible --version
+          ansible-lint --version
+
+      - name: Run verify scripts
+        run: |
+          cat verify_lint.sh | /bin/sh || true
+          cat verify_pb.sh | /bin/sh || true
+          cat verify_j2.sh | /bin/sh || true
+
+  shellcheck:
+    needs: changes
+    if: needs.changes.outputs.shell == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck
+        run: ./runShellcheck.sh

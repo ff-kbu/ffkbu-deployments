@@ -1,0 +1,122 @@
+bird_protocols_local:
+  - protocol: direct
+    description: Create device routes for all network interfaces
+    ipv4: true
+    ipv6: true
+
+  - protocol: device
+    description: Get information about network interfaces
+
+  - protocol: kernel
+    table: main4
+    description: Import all ipv4 routes from the kernel
+    learn: true
+    ipv4:
+      - |
+        import filter {
+          if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v4 | join(', ') }} ]) then {
+            reject;
+          }
+          accept;
+        }
+
+  - protocol: kernel
+    table: main6
+    description: Import all ipv6 routes from the kernel
+    learn: true
+    ipv6:
+      - |
+        import filter {
+          if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v6 | join(', ') }} ]) then {
+            reject;
+          }
+          accept;
+        }
+
+  - protocol: static
+    description: Do not route our own public ffrl ipv4 adresses
+    ipv4:
+      - table ffkbu_table_4
+    routes:
+      - network: "{{ lo_ffrl_public_ipv4 }}"
+        nexthop: blackhole
+
+  - protocol: static
+    description: Do not route our own public ffrl ipv6 adresses
+    ipv6:
+      - table ffkbu_table_6
+    routes:
+      - network: 2a03:2260:101a::/48
+        nexthop: blackhole
+
+  - protocol: static
+    description: Add static routes to prevent GRE tunnel recursion
+    ipv4: true
+    routes:
+      - network: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_1') | map(attribute='gateway') | first }}/32"
+        nexthop: "{{ hetzner_wan_gateway }}"
+        mode: recursive
+      - network: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_2') | map(attribute='gateway') | first }}/32"
+        nexthop: "{{ hetzner_wan_gateway }}"
+        mode: recursive
+      - network: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_1') | map(attribute='gateway') | first }}/32"
+        nexthop: "{{ hetzner_wan_gateway }}"
+        mode: recursive
+      - network: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_2') | map(attribute='gateway') | first }}/32"
+        nexthop: "{{ hetzner_wan_gateway }}"
+        mode: recursive
+      - network: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_1') | map(attribute='gateway') | first }}/32"
+        nexthop: "{{ hetzner_wan_gateway }}"
+        mode: recursive
+      - network: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_2') | map(attribute='gateway') | first }}/32"
+        nexthop: "{{ hetzner_wan_gateway }}"
+        mode: recursive
+      - network: 0.0.0.0/0
+        nexthop: "{{ hetzner_wan_gateway }}"
+        mode: via
+
+  - protocol: pipe
+    description: Add GRE ipv4 routings to bird routing table to find nexthop for BGP routes
+    table: master4
+    peer_table: ffkbu_table_4
+    filter:
+      type: export
+      acl:
+        - rule: "net ~ [{{ ffrl_gre |  map(attribute='remote.ipv4') | first | ansible.utils.ipv4('network') | ansible.utils.ipsubnet(16,0) }}+]"
+          action: accept
+        - rule: "net ~ [{{ ffkbu_gre | map(attribute='local.ipv4') | first | ansible.utils.ipv4('network') | ansible.utils.ipsubnet(24,0) }}+]"
+          action: accept
+        - rule: "net ~ [{{ ffrl_public_network_ipv4 }}+]"
+          action: accept
+        - rule: "net ~ [10.0.0.0/8+]"
+          action: accept
+      default_action: reject
+
+  - protocol: pipe
+    description: Add GRE ipv6 routings to bird routing table to find nexthop for BGP routes
+    table: master6
+    peer_table: ffkbu_table_6
+    filter:
+      type: export
+      acl:
+        - rule: "net ~ [{{ ffkbu_gre | map(attribute='local.ipv6') | first | ansible.utils.ipv6('network') | ansible.utils.ipsubnet(16,0) }}+]"
+          action: accept
+        - rule: "net ~ [{{ ffrl_public_network_ipv6 | ansible.utils.ipv6('network') | ansible.utils.ipsubnet(32,0) }}+]"
+          action: accept
+      default_action: reject
+
+  - protocol: kernel
+    table: ffkbu4
+    description: Export all ipv4 routes to custom kernel tables
+    kernel_table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    ipv4:
+      - export all
+      - table ffkbu_table_4
+
+  - protocol: kernel
+    table: ffkbu6
+    description: Export all ipv6 routes to custom kernel tables
+    kernel_table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    ipv6:
+      - export all
+      - table ffkbu_table_6

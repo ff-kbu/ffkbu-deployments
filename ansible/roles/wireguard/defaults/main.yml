@@ -1,0 +1,29 @@
+---
+wireguard_private_key_dir: /opt/wireguard/privatekeys
+
+wireguard_interfaces:
+  - interface: wg0
+    port: 1940
+    public_key: pubkey
+    private_key: privkey
+    address4: 192.168.1.1/32
+    address6: fdd3:ff::1/128
+    wireguard_clients_dir: /opt/wireguard/client_configs
+    wireguard_endpoint: host.my.domain
+    wireguard_clients:
+      - name: client01
+        address4: 192.168.1.2/32
+        address6: fdd3:ff::2/128
+        public_key: pubkey
+        private_key: privkey
+        allowed_ips:
+          - 192.168.1.1/24
+          - fdd3:ff::2/32
+
+wireguard_dynv6_update: false
+wireguard_dynv6_base_path: /opt/wireguard/dynv6
+wireguard_dynv6_domain: ""
+wireguard_dynv6_api_token: ""
+wireguard_dynv6_updater_interval_seconds: 900
+wireguard_dynv6_wireguard_interface_prefix: wg_
+wireguard_dynv6_domain_suffix: ""

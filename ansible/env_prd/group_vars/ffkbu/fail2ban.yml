@@ -1,0 +1,9 @@
+local_ips:
+  - ::1
+  - 127.0.0.1/8
+  - 192.168.178.0/24
+  - 87.79.78.109/32
+  - "{{ ffrl_public_network_ipv4 }}"
+  - "{{ ffrl_public_network_ipv6 }}"
+
+fail2ban_ignoreips: "{{ ffrl_gre | default([]) | map(attribute='gateway') | list + local_ips }}"

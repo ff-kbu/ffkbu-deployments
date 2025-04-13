@@ -1,0 +1,7 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% for p in bird_protocols | selectattr('protocol', 'eq', 'device') %}
+{{ '### ' + p.description if p.description is defined }}
+protocol device {}
+
+{% endfor %}

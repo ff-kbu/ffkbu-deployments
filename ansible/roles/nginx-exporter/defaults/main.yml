@@ -1,0 +1,6 @@
+---
+# defaults file for nginx-exporter
+nginx_exporter_version: 0.11.0
+nginx_exporter_basdir: /opt/nginx_exporter
+nginx_exporter_scape_url: http://localhost/nginx_status
+nginx_exporter_listen_address: localhost:9322

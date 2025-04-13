@@ -1,0 +1,32 @@
+---
+- name: Preflight | Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Preflight | Assert that docker is installed
+  ansible.builtin.assert:
+    that: "'docker' in services"
+    msg: "This role requires docker"
+
+- name: Create Portainer directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ portainer_config_directory }}"
+
+- name: Set Docker container parameters
+  ansible.builtin.set_fact:
+    portainer_container_parameters:
+      name: "{{ portainer_name }}"
+      image: "{{ portainer_image }}"
+      state: started
+      published_ports: "{{ portainer_ports }}"
+      labels:
+        com.centurylinklabs.watchtower.enable: "{{ portainer_watchtower_update | bool | lower }}"
+      volumes:
+        - "{{ portainer_config_directory }}:/data"
+        - /var/run/docker.sock:/var/run/docker.sock
+
+- name: Create Portainer container
+  community.docker.docker_container: "{{ portainer_container_parameters | combine(portainer_docker_additional_options) }}"
+  tags: skip_ansible_lint

@@ -1,0 +1,76 @@
+---
+- name: Check if matching {{ key_name }} GPG key already exists.
+  ansible.builtin.shell:
+    cmd: |-
+      [ -f {{ _full_path | quote }} ] || exit 2
+  register: should_download_gpg_key
+  failed_when: should_download_gpg_key.rc not in (0, 2)
+  changed_when: false
+
+- name: Add {{ key_name }} GPG key.
+  block:
+    - name: Create temporary file for {{ key_name }}.
+      ansible.builtin.tempfile:
+        state: file
+      register: gpg_tempfile
+
+    - name: Create temporary file for armored {{ key_name }}.
+      ansible.builtin.tempfile:
+        state: file
+      register: asc_tempfile
+      when: dearmor
+
+    - name: Download {{ key_name }} GPG key.
+      ansible.builtin.get_url:
+        url: "{{ url }}"
+        dest: "{{ asc_tempfile.path if dearmor else gpg_tempfile.path }}"
+        # we want to write to the temporary file even though it already exists
+        force: true
+
+    - name: Dearmor {{ key_name }} GPG key.
+      ansible.builtin.command:
+        argv:
+          - gpg
+          # we want to write to the temporary file even though it already exists
+          - --yes
+          - -o
+          - "{{ gpg_tempfile.path }}"
+          - --dearmor
+          - "{{ asc_tempfile.path }}"
+      when: dearmor
+
+    - name: Verify the key ID/fingerprint of {{ key_name }} GPG key.
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --list-keys
+          - --no-default-keyring
+          - --keyring
+          - "{{ gpg_tempfile.path }}"
+          - "{{ key_id }}"
+      when: key_id
+
+    - name: Copy GPG key to {{ _full_path }}.
+      become: true
+      ansible.builtin.copy:
+        src: "{{ gpg_tempfile.path }}"
+        dest: "{{ _full_path }}"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+        remote_src: true
+  always:
+    - name: Remove temporary file for armored {{ key_name }}.
+      ansible.builtin.file:
+        path: "{{ asc_tempfile.path }}"
+        state: absent
+      when: dearmor
+
+    - name: Remove temporary file for {{ key_name }}.
+      ansible.builtin.file:
+        path: "{{ gpg_tempfile.path }}"
+        state: absent
+  when: should_download_gpg_key.rc != 0
+
+- ansible.builtin.set_fact:
+    apt_gpg_key_path: "{{ _full_path }}"

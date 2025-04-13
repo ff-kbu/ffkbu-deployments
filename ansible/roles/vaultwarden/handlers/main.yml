@@ -1,0 +1,16 @@
+---
+- name: Start vaultwarden container
+  community.docker.docker_container:
+    name: "{{ vaultwarden_container_name }}"
+    state: started
+
+- name: Stop vaultwarden container
+  community.docker.docker_container:
+    name: "{{ vaultwarden_container_name }}"
+    state: stopped
+
+- name: Restart vaultwarden container
+  community.docker.docker_container:
+    name: "{{ vaultwarden_container_name }}"
+    state: started
+    restart: true

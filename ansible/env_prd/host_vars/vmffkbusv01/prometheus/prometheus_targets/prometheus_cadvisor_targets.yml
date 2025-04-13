@@ -1,0 +1,7 @@
+prometheus_cadvisor_targets:
+  - targets:
+      - vmffkbusv01.ffkbu.lan:9321
+      - vmffkbusv02.ffkbu.lan:9321
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd

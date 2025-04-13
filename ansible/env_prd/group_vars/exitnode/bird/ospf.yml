@@ -1,0 +1,79 @@
+bird_protocols_ospf:
+  - protocol: ospf
+    name: ospf_ffkbu_exitnodes_v4
+    description: OSPF exit nodes ipv4
+    # set wireguard ospf routes to lower preference than kernel
+    ipv4:
+      - |
+        import filter {
+          if (net ~ [ {{ ffkbu_wg_local_prefix_mask_v4 | join(', ') }} ]) then {
+            preference = 5;
+            accept;
+          }
+          if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v4 | join(', ') }} ]) then {
+            preference = 5;
+            accept;
+          }
+          accept;
+        }
+      - |
+        export filter {
+          if (net ~ [ {{ ffkbu_wg_local_prefix_mask_v4 | join(', ') }} ]) then {
+            preference = 5;
+            accept;
+          }
+          if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v4 | join(', ') }} ]) then {
+            preference = 5;
+            accept;
+          }
+          accept;
+        }
+    areas:
+      - id: 0.0.0.0
+        interfaces:
+          - name: gre_ffkbu_*
+            type: broadcast
+            options:
+              - ttl security tx only
+              - wait 10
+              - cost 1000
+
+  - protocol: ospf
+    name: ospf_ffkbu_exitnodes_v6
+    description: OSPF exit nodes ipv6
+    version: 3
+    # set wireguard ospf routes to lower preference than kernel
+    ipv6:
+      - |
+        import filter {
+          if (net ~ [ {{ ffkbu_wg_local_prefix_mask_v6 | join(', ') }} ]) then {
+            preference = 5;
+            accept;
+          }
+          if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v6 | join(', ') }} ]) then {
+            preference = 5;
+            accept;
+          }
+          accept;
+        }
+      - |
+        export filter {
+          if (net ~ [ {{ ffkbu_wg_local_prefix_mask_v6 | join(', ') }} ]) then {
+            preference = 5;
+            accept;
+          }
+          if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v6 | join(', ') }} ]) then {
+            preference = 5;
+            accept;
+          }
+          accept;
+        }
+    areas:
+      - id: 0.0.0.0
+        interfaces:
+          - name: gre_ffkbu_*
+            type: broadcast
+            options:
+              - ttl security tx only
+              - wait 10
+              - cost 1000

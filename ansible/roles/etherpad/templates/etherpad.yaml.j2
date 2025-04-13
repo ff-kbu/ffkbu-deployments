@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  etherpad:
+    build:
+      context: ./repository
+      args:
+        ETHERPAD_PLUGINS: "{{ etherpad_plugins | join (' ') }}"
+      labels:
+        - "com.centurylinklabs.watchtower.enable={{ etherpad_watchtower_update | bool | lower }}"
+    container_name: etherpad
+    environment:
+      TITLE: "{{ etherpad_title }}"
+      FAVICON: "{{ etherpad_favicon }}"
+      SKIN_NAME: colibris
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: {{ etherpad_db_name }}
+      DB_USER: {{ etherpad_db_user }}
+      DB_PASS: {{ etherpad_db_pass }}
+      ADMIN_PASSWORD: {{ etherpad_admin_pass }}
+      {{ etherpad_options | to_nice_yaml | indent(6) }}
+    restart: always
+    depends_on:
+      - db
+    networks:
+      etherpad:
+      docker_meet.jitsi:
+    ports:
+      - "{{ etherpad_port }}:9001"
+
+  db:
+    image: postgres:12
+    container_name: etheretherpad_db
+    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    environment:
+      POSTGRES_DB: {{ etherpad_db_name }}
+      POSTGRES_USER: {{ etherpad_db_user }}
+      POSTGRES_PASSWORD: {{ etherpad_db_pass }}
+    volumes:
+      - db:/var/lib/postgresql/data:z
+    networks:
+      etherpad:
+
+networks:
+  etherpad:
+  docker_meet.jitsi:
+    external: true
+
+volumes:
+    db:

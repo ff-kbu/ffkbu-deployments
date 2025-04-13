@@ -1,0 +1,51 @@
+#!/usr/bin/env ansible-playbook
+#
+# Opsoblete, when using Hetzner hloud role, since keys are provided by cloud-init
+- hosts: localhost
+  become: false
+  gather_facts: false
+  vars_prompt:
+    - name: preflight_host
+      prompt: Enter hostname of vm to be provisioned
+      private: false
+    - name: "ansible_password"
+      prompt: "Enter {{ ansible_user }} password"
+      private: true
+  vars:
+    ansible_user: root
+    preflight_ansible_ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCYJ8azeX453r/+rw/4ctv7LMVhFL++m4inMm0FAWYf5KyDcnRuadssNJmK4ryQ2YepwegQ+clIEgMTb/Ku9BDbx3SjJhYWgV+mJE0V/2m1wQbjNmClAfoYSz6AgPZUrzehBfNDCuHlOhT461iEUf8YM8gDgCsIogh4xbDZEe+Lj9RZrq8syuEfPj3VBlK/k7gKBe/6dGovYtltOH7g6fou8mcd4tOItpzbOw4IsZF0egWP+nbwGQE8/+jrLa8ipo6Q66QG2fs+oO6rM8ypXNXu28oS1r0ssEhk0wRePELWaIJWHvzXbIPkV7smXvnJvxWx/9lGN5DiwR2w6nepNDq35ryqBZXq6LL+Hle3w52+y43u/7pbhcGtp7BfKsIjtJzNgEJLjMUmiF54O5LGy/h4vpz+EtXX42tTBuXrkbmKTSJPUwcvCstCKzfqXnkDYxDbe2u0wokUSfVDt0zbO6jyJkl3LlQnfj+QGiY9LU6JlrWhKg3xCerCgQSKDpVnqggdaM2V3TeqK6W8zy496XZtiN2S7GorBWsYevDrpDAPEEtXvNbwo0Ltu7EhQVwMCnAxlRim1Ytxkzz3i5fKHsR1yQoPrFRicD8Zeiu6V5VGuFB7Klxam6LLsRRbnIgNWyOjeWiikEhO4i1cpVoOFxbAoc95fiEJw7tJXN46m4aLpQ== ansible_ffkbu"
+
+  tasks:
+    - name: Install sudo
+      ansible.builtin.apt:
+        name:
+          - sudo
+      delegate_to: "{{ preflight_host }}"
+      become: true
+
+    - name: Create ansible user
+      ansible.builtin.user:
+        name: ansible
+        shell: /bin/sh
+        groups: sudo
+        append: true
+      delegate_to: "{{ preflight_host }}"
+      become: true
+
+    - name: Add ansible sudoers rule file
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/ansible
+        create: true
+        regexp: '^ansible'
+        line: 'ansible ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+      delegate_to: "{{ preflight_host }}"
+      become: true
+
+    - name: Deploy ansible ssh public key
+      ansible.posix.authorized_key:
+        user: ansible
+        key: "{{ preflight_ansible_ssh_key }}"
+        exclusive: true # remove all other non-specified keys from the authorized_keys file.
+      delegate_to: "{{ preflight_host }}"
+      become: true

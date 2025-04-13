@@ -1,0 +1,13 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[Unit]
+Description=Watch for actions of apt-daily-upgrade.timer
+Requires=apt-daily-upgrade.timer
+After=apt-daily-upgrade.timer
+
+[Path]
+PathModified=/var/lib/apt/periodic/unattended-upgrades-stamp
+Unit=post-upgrade.service
+
+[Install]
+WantedBy=multi-user.target

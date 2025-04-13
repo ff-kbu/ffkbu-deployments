@@ -1,0 +1,16 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+#!/bin/bash
+# {{ ansible_managed }}
+#
+# Description: Expose metrics /etc/debian_version
+
+envHost="{{ deploy_env }}"
+debian_version=$(cat /etc/debian_version)
+
+echo '# HELP debian_version Shows Debian Version.'
+echo '# TYPE debian_version gauge'
+if [[ -n "${debian_version}" ]] ; then
+  echo "debian_version {env=\"$envHost\"} ${debian_version}"
+else
+  echo 'debian_version 0'
+fi

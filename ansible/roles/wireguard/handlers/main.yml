@@ -1,0 +1,12 @@
+---
+- name: Restart systemd-networkd
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    state: restarted
+
+- name: restart_dynv6_updater
+  ansible.builtin.systemd:
+    name: dynv6_updater
+    state: restarted
+    daemon_reload: true
+    enabled: true

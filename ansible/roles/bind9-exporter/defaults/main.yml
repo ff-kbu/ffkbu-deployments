@@ -1,0 +1,9 @@
+---
+# defaults file for bind9-exporter
+bind9_exporter_version: 0.3.0
+bind9_exporter_listen_address: 127.0.0.1
+bind9_exporter_listen_port: 9119
+bind9_exporter_watchtower_active: true
+
+bind9_exporter_statistics_hostname: localhost
+bind9_exporter_statistics_port: 8053

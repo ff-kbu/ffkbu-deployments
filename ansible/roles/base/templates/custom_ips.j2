@@ -1,0 +1,12 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% for config in base_extra_ips %}
+{% if config.ip4 is defined %}
+iface {{ config.interface }} inet static
+    address {{ config.ip4 }}
+{% endif %}
+{% if config.ip6 is defined %}
+iface {{ config.interface }} inet6 static
+    address {{ config.ip6 }}
+{% endif %}
+{% endfor %}

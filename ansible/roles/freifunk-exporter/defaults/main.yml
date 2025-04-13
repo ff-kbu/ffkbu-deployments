@@ -1,0 +1,10 @@
+---
+# defaults file for freifunk-exporter
+freifunk_exporter_version: "0.1.0"
+freifunk_exporter_data_sources: []
+  # - name: hood-name
+  #   data_url: https://map.site.com/data/hoodurl/meshviewer.json
+  #   port: 9252
+
+freifunk_exporter_data_refreshtime: 3m0s
+freifunk_exporter_bind_address: 127.0.0.1

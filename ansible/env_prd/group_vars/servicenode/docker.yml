@@ -1,0 +1,3 @@
+docker_system_prune: true
+docker_cadvisor_active: true
+docker_watchtower_active: true

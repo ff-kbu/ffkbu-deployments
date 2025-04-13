@@ -1,0 +1,18 @@
+prometheus_dns_rules:
+  - alert: HighQueryRate
+    expr: rate(bind_incoming_queries_total[1m]) > 1000
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High DNS query rate detected"
+      description: '{% raw %}Instance {{ $labels.instance }} is experiencing a high DNS query rate of {{ $value }} queries per second.{% endraw %}'
+
+  - alert: HighQueryFailureRate
+    expr: rate(bind_query_errors_total[1m]) / rate(bind_incoming_queries_total[1m]) > 0.05
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High DNS query failure rate detected"
+      description: '{% raw %}Instance {{ $labels.instance }} has a DNS query failure rate of {{ $value }}.{% endraw %}'

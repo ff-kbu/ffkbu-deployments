@@ -1,0 +1,73 @@
+---
+- name: Display target system facts
+  ansible.builtin.debug:
+    msg:
+      - "Distribution: {{ ansible_distribution }}"
+      - "Release: {{ ansible_distribution_release }}"
+      - "Version: {{ ansible_distribution_version }}"
+
+- name: Check provision status
+  ansible.builtin.stat:
+    path: /root/.provisioned
+  register: provisionmarker
+  tags: always
+
+- name: Copy bashrc template
+  ansible.builtin.template:
+    src: bashrc.j2
+    dest: "{{ item }}"
+    mode: "0644"
+  loop:
+    - /etc/skel/.bashrc
+    - /root/.bashrc
+  when: not provisionmarker.stat.exists
+
+- name: Fix root terminal style
+  ansible.builtin.copy:
+    src: /etc/skel/.bashrc
+    dest: /root/.bashrc
+    remote_src: true
+  when: not provisionmarker.stat.exists
+
+- ansible.builtin.include_tasks: "{{ ansible_distribution | lower }}.yml"
+
+- ansible.builtin.include_tasks: pip.yml
+
+- name: Install extra repository keys
+  ansible.builtin.apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: "{{ item.key }}"
+  loop: "{{ base_extra_repositories }}"
+  when: base_extra_repositories | default('') | length > 0
+
+- name: Set timezone Europe/Berlin
+  community.general.timezone:
+    name: Europe/Berlin
+  when: not provisionmarker.stat.exists
+
+- name: Set python 3 as default
+  ansible.builtin.template:
+    src: python3.sh.j2
+    dest: /etc/profile.d/python3.sh
+    mode: "0755"
+
+- ansible.builtin.include_tasks: tweaks.yml
+  tags: tweaks
+
+- ansible.builtin.include_tasks: ssh-keys.yml
+  tags: ssh-keys
+
+- ansible.builtin.include_tasks: host.yml
+
+- ansible.builtin.include_tasks: iptables.yml
+  when: base_iptables_rules | length
+  tags: iptables
+
+- name: Set provision status
+  ansible.builtin.file:
+    path: /root/.provisioned
+    state: touch
+    owner: root
+    group: root
+    mode: '0644'
+  when: not provisionmarker.stat.exists

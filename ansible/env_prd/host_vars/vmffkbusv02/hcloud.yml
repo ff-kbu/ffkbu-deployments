@@ -1,0 +1,12 @@
+hcloud_server_type: cpx31
+hcloud_location: fsn1
+hcloud_image: debian-12
+hcloud_ssh_keys:
+  - jzielke_hetzner
+hcloud_enable_ipv4: true
+hcloud_enable_ipv6: true
+hcloud_private_networks:
+  - name: net_ffkbu
+    ip: 10.0.1.4
+
+hcloud_dns_ptr: sv02.kbu.freifunk.net

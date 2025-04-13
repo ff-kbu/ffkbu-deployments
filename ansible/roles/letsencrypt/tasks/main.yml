@@ -1,0 +1,22 @@
+---
+- name: Check if nginx is installed
+  ansible.builtin.package_facts:
+    manager: "auto"
+
+- name: Stop nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: stopped
+  when: "'nginx' in ansible_facts.packages"
+
+- ansible.builtin.import_tasks: install.yml
+  when: letsencrypt_setup
+
+- ansible.builtin.import_tasks: certificate.yml
+  when: letsencrypt_cert|d()
+
+- name: Start nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+  when: "'nginx' in ansible_facts.packages"

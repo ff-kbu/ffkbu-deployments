@@ -1,0 +1,74 @@
+---
+- name: Set apt repositories
+  ansible.builtin.copy:
+    content: "{{ lookup('ansible.builtin.vars',  'base_apt_mirrors_' + ansible_distribution_release | lower) }}"
+    dest: /etc/apt/sources.list
+
+- name: debian | Allow release info change
+  ansible.builtin.lineinfile:
+    path: /etc/apt/apt.conf.d/99releaseinfochange
+    state: present
+    create: true
+    line: "{{ item.line }}"
+  loop:
+    - line: Acquire::AllowReleaseInfoChange::Suite "true";
+    - line: Acquire::AllowReleaseInfoChange::Origin "true";
+    - line: Acquire::AllowReleaseInfoChange::Label "true";
+  loop_control:
+    label: "{{ item.line }}"
+
+- name: debian | Install requirements to update repository keys
+  ansible.builtin.apt:
+    name: "gnupg"
+    update_cache: true
+
+- name: debian | Create script to remove EXTERNALLY-MANAGED file
+  ansible.builtin.copy:
+    dest: /usr/local/bin/remove_externally_managed.sh
+    owner: root
+    group: root
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      python_path=$(python3 -c "import sys; print(f'/usr/lib/python{sys.version_info.major}.{sys.version_info.minor}')")
+      if [ -f "$python_path/EXTERNALLY-MANAGED" ]; then
+          rm -f "$python_path/EXTERNALLY-MANAGED"
+      fi
+
+- name: debian | Ensure APT hook to run the script
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/99-remove-externally-managed
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      DPkg::Post-Invoke {
+          "/usr/local/bin/remove_externally_managed.sh";
+      };
+
+- name: debian | Update all packages to the latest version
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: full
+  when: not provisionmarker.stat.exists
+
+- name: debian | Install additional Debian packages
+  ansible.builtin.apt:
+    name: "{{ debian_base_packages }}"
+    state: present
+    update_cache: true
+    autoremove: true
+  register: apt_status
+  until: not apt_status.failed
+  delay: 6
+  retries: 10
+
+- name: debian | Purge obsolete Debian packages
+  ansible.builtin.apt:
+    name: "{{ debian_purge_packages }}"
+    state: present
+    purge: true
+  register: apt_status
+  until: not apt_status.failed
+  delay: 6
+  retries: 10

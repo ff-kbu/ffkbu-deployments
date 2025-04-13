@@ -1,0 +1,58 @@
+---
+# tasks file for jitsi
+- name: Preflight | Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Preflight | Assert that docker is installed
+  ansible.builtin.assert:
+    that: "'docker' in services"
+    msg: "This role requires docker"
+
+- name: Preflight | Check Installation status
+  ansible.builtin.stat:
+    path: "{{ jitsi_docker_directory }}/CHANGELOG.md"
+  register: jitsi_docker_version_file
+
+- name: Preflight | Read current version
+  ansible.builtin.shell: "head -1 {{ jitsi_docker_directory }}/CHANGELOG.md | cut -d ' ' -f2"
+  register: jitsi_docker_version
+  when: jitsi_docker_version_file.stat.exists
+  changed_when: false
+  tags:
+    - skip_ansible_lint
+
+- name: Install | Install pip packages
+  ansible.builtin.pip:
+    name:
+      - PyYAML==5.3.1
+      - docker-compose==1.29.2
+
+- name: Install | Create directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: "0750"
+    state: directory
+  loop:
+    - "{{ jitsi_docker_directory }}"
+    - "{{ jitsi_config_directory }}"
+  when: not jitsi_docker_version_file.stat.exists
+
+- name: Install | Download docker files
+  ansible.builtin.unarchive:
+    src: "https://github.com/jitsi/docker-jitsi-meet/archive/refs/tags/{{ jitsi_version }}.tar.gz"
+    dest: "{{ jitsi_docker_directory }}"
+    remote_src: true
+    extra_opts: '--strip-components=1'
+  when: jitsi_docker_version.stdout != jitsi_version
+
+- name: Configuration | Generate env file
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ jitsi_docker_directory }}/.env"
+    mode: "0640"
+
+- name: Deploy | Start Docker container
+  community.docker.docker_compose_v2:
+    project_src: "{{ jitsi_docker_directory }}"
+    pull: always
+    files: docker-compose.yml

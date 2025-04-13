@@ -1,0 +1,3 @@
+ptr_10_0_10:
+  - name: "{{ ffkbu_net | ansible.utils.ipaddr('revdns') | split('.', 1) | last | regex_replace('\\.$','') }}"
+    type: slave

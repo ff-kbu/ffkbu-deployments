@@ -1,0 +1,53 @@
+---
+# tasks file for homer
+- name: Preflight | Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Preflight | Assert that docker is installed
+  ansible.builtin.assert:
+    that: "'docker' in services"
+    msg: "This role requires docker"
+
+- name: Create homer directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ homer_install_path }}"
+    - "{{ homer_install_path }}/logos"
+    - "{{ homer_install_path }}/icons"
+
+- name: Write configuration
+  ansible.builtin.template:
+    src: config.yml.j2
+    dest: "{{ homer_install_path }}/config.yml"
+
+- name: Copy logos
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ homer_install_path }}/logos/{{ item | basename }}"
+  with_fileglob: "files/logos/*"
+  loop_control:
+    label: "{{ item | basename }}"
+
+- name: Copy favicon
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ homer_install_path }}/icons/{{ item | basename }}"
+  with_fileglob: "files/favicon.ico"
+  loop_control:
+    label: "{{ item | basename }}"
+
+- name: "Create docker container"
+  community.docker.docker_container:
+    name: "{{ homer_container_name }}"
+    image: "b4bz/homer:{{ homer_image_tag|string }}"
+    pull: true
+    ports: "{{ homer_ports }}"
+    volumes:
+      - "{{ homer_install_path|string }}:/www/assets"
+    labels: "{{ homer_labels }}"
+    restart_policy: "{{ homer_restart_policy }}"
+    env:
+      "INIT_ASSETS": "0"

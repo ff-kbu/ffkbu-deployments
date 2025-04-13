@@ -1,0 +1,10 @@
+---
+- hosts: uisp
+  become: true
+
+  roles:
+    - role: docker
+      tags: docker
+
+    - role: uisp
+      tags: uisp

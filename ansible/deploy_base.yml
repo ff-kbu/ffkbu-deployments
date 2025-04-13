@@ -1,0 +1,18 @@
+- hosts: all,!not_full_ansible_managed,!not_managed_in_this_environment
+  become: true
+
+  roles:
+    - role: base
+      tags: base
+
+    - role: fail2ban
+      tags: fail2ban
+
+    - role: unattended-upgrades
+      tags: unattended-upgrades
+
+    - role: ntp
+      tags: ntp
+
+    - role: node-exporter
+      tags: node-exporter

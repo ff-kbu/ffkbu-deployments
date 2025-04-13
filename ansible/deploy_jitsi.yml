@@ -1,0 +1,13 @@
+---
+- hosts: jitsi
+  become: true
+
+  roles:
+    - role: docker
+      tags: docker
+
+    - role: nginx
+      tags: nginx
+
+    - role: jitsi
+      tags: jitsi

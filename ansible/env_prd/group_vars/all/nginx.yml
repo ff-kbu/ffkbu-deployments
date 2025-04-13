@@ -1,0 +1,1 @@
+nginx_syslog_server: unix:/dev/log

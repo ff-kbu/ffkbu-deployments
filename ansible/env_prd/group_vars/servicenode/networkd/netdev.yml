@@ -1,0 +1,9 @@
+systemd_networkd_netdev:
+  gre_ffkbu_en:
+    - NetDev:
+        - Name: "gre_ffkbu_en"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth1_internal_ip | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffkbu_gre | selectattr('name', 'eq', 'gre_ffkbu_en') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"

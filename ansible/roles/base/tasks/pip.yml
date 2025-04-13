@@ -1,0 +1,12 @@
+- name: pip | Upgrade pip
+  ansible.builtin.shell:
+    cmd: python3 -m pip install --upgrade pip
+  tags:
+    - skip_ansible_lint
+  when: not provisionmarker.stat.exists
+
+- name: pip | Install pip3 packages
+  ansible.builtin.pip:
+    name: "{{ base_pip_packages }}"
+  when:
+    - base_pip_packages is defined

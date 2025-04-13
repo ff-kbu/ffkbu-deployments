@@ -1,0 +1,12 @@
+---
+
+portainer_name: portainer
+portainer_image: portainer/portainer-ce:latest
+portainer_ports:
+  - 9443:9443
+portainer_config_directory: /tmp/portainer
+
+portainer_docker_additional_options:
+  restart_policy: always
+
+portainer_watchtower_update: true

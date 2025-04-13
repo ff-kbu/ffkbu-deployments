@@ -1,0 +1,6 @@
+---
+# vars file for freifunk-exporter
+freifunk_exporter_src_url: "https://codeload.github.com/xperimental/freifunk-exporter/tar.gz/refs/tags/v{{ freifunk_exporter_version }}"
+freifunk_exporter_base_folder: /opt/ff-exporter
+freifunk_exporter_user: ff-exporter
+freifunk_exporter_group: ff-exporter

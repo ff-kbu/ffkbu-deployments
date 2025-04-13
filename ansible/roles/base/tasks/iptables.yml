@@ -1,0 +1,12 @@
+- name: Install iptables-persistent
+  ansible.builtin.apt:
+    name: iptables-persistent
+  tags: iptables
+
+- name: Install iptables rules
+  ansible.builtin.iptables: "{{ item }}"
+  loop: "{{ base_iptables_rules }}"
+  tags:
+    - iptables
+    - skip_ansible_lint
+  notify: iptables_save

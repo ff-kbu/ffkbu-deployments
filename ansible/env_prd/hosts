@@ -1,0 +1,81 @@
+all:
+  children:
+    hetzner:
+      children:
+        ffkbu:
+          children:
+            wireguard:
+              hosts:
+                vmffkbuen01:
+                  ansible_host: en01.kbu.freifunk.net
+                vmffkbuen02:
+                  ansible_host: en02.kbu.freifunk.net
+            exitnode:
+              hosts:
+                vmffkbuen01:
+                  ansible_host: en01.kbu.freifunk.net
+                vmffkbuen02:
+                  ansible_host: en02.kbu.freifunk.net
+            servicenode:
+              hosts:
+                vmffkbusv01:
+                  ansible_host: sv01.kbu.freifunk.net
+                vmffkbusv02:
+                  ansible_host: sv02.kbu.freifunk.net
+              children:
+                mon:
+                  hosts:
+                    vmffkbusv01:
+                      ansible_host: sv01.kbu.freifunk.net
+                freifunk_exporter:
+                  hosts:
+                    vmffkbusv01:
+                      ansible_host: sv01.kbu.freifunk.net
+                jitsi:
+                  hosts:
+                    vmffkbusv01:
+                      ansible_host: sv01.kbu.freifunk.net
+                etherpad:
+                  hosts:
+                    vmffkbusv01:
+                      ansible_host: sv01.kbu.freifunk.net
+                homer:
+                  hosts:
+                    vmffkbusv01:
+                      ansible_host: sv01.kbu.freifunk.net
+                vaultwarden:
+                  hosts:
+                    vmffkbusv02:
+                      ansible_host: sv02.kbu.freifunk.net
+                bind9:
+                  hosts:
+                    vmffkbusv01:
+                      ansible_host: sv01.kbu.freifunk.net
+                    vmffkbusv02:
+                      ansible_host: sv02.kbu.freifunk.net
+                uisp:
+                  hosts:
+                    vmffkbusv02:
+                      ansible_host: sv02.kbu.freifunk.net
+    docker:
+      children:
+        portainer:
+          hosts:
+            vmffkbusv01:
+              ansible_host: sv01.kbu.freifunk.net
+            vmffkbusv02:
+              ansible_host: sv02.kbu.freifunk.net
+    unifi_network_server:
+      hosts:
+        vmffkbusv02:
+          ansible_host: sv02.kbu.freifunk.net
+    letsencrypt:
+      hosts:
+        vmffkbusv01:
+          ansible_host: sv01.kbu.freifunk.net
+        vmffkbusv02:
+          ansible_host: sv02.kbu.freifunk.net
+        vmffkbuen01:
+          ansible_host: en01.kbu.freifunk.net
+        vmffkbuen02:
+          ansible_host: en02.kbu.freifunk.net

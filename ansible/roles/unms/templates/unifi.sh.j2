@@ -1,0 +1,10 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+#!/bin/bash
+# {{ ansible_managed }}
+cp -f {{ unifi_ssl_letsencrypt_live_folder }}/cert.pem \
+      {{ unifi_ssl_letsencrypt_live_folder }}/chain.pem \
+      {{ unifi_ssl_letsencrypt_live_folder }}/privkey.pem \
+      {{ unifi_base_directory }}/cert/
+
+DOCKER_PATH=$(which docker)
+"$DOCKER_PATH" restart unifi

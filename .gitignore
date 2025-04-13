@@ -1,0 +1,19 @@
+!ansible/
+vagrant/**/.vagrant
+vagrant/**/*.box
+vagrant/acdserver/acd-call-simulator/*.log
+**/.vaultpass
+**/.DS_Store
+ansible/temp
+credentials.txt
+
+# docker
+acme.json
+
+#IDE
+.idea/
+*.iml
+.vscode/
+.factorypath
+ansible.key
+*.todo

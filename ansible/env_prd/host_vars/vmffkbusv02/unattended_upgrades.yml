@@ -1,0 +1,2 @@
+unattended_post_commands:
+  - /usr/bin/systemctl restart docker.service

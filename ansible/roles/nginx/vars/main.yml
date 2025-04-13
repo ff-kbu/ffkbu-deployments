@@ -1,0 +1,9 @@
+---
+# vars file for nginx
+nginx_apt_packages:
+  - openssl
+  - python3-pip
+
+nginx_pip_packages:
+  - pyopenssl
+  - passlib

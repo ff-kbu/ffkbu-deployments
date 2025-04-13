@@ -1,0 +1,14 @@
+---
+- name: "Stop"
+  community.docker.docker_container:
+    name: "{{ vaultwarden_container_name }}"
+    state: stopped
+
+- name: Migrate vaultwarden data
+  ansible.builtin.copy:
+    src: "{{ vaultwarden_data }}"
+    dest: "{{ vaultwarden_install_path }}"
+    owner: "{{ vaultwarden_linux_user_name }}"
+    group: "{{ vaultwarden_linux_group_name }}"
+    mode: '0700'
+  notify: Restart vaultwarden container

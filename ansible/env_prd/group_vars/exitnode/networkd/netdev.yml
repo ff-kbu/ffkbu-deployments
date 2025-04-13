@@ -1,0 +1,72 @@
+systemd_networkd_netdev:
+  gre_ffrl_ber_1:
+    - NetDev:
+        - Name: "gre_ffrl_ber_1"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth0_floating_ipv4 | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_1') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"
+
+  gre_ffrl_ber_2:
+    - NetDev:
+        - Name: "gre_ffrl_ber_2"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth0_floating_ipv4 | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_ber_2') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"
+
+  gre_ffrl_dus_1:
+    - NetDev:
+        - Name: "gre_ffrl_dus_1"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth0_floating_ipv4 | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_1') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"
+
+  gre_ffrl_dus_2:
+    - NetDev:
+        - Name: "gre_ffrl_dus_2"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth0_floating_ipv4 | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_dus_2') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"
+
+  gre_ffrl_fra_1:
+    - NetDev:
+        - Name: "gre_ffrl_fra_1"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth0_floating_ipv4 | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_1') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"
+
+  gre_ffrl_fra_2:
+    - NetDev:
+        - Name: "gre_ffrl_fra_2"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth0_floating_ipv4 | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffrl_gre | selectattr('name', 'eq', 'gre_ffrl_fra_2') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"
+
+  gre_ffkbu_en:
+    - NetDev:
+        - Name: "gre_ffkbu_en"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth1_internal_ip | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffkbu_gre | selectattr('name', 'eq', 'gre_ffkbu_en') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"
+
+  gre_ffkbu_sv:
+    - NetDev:
+        - Name: "gre_ffkbu_sv"
+        - Kind: "gre"
+    - Tunnel:
+        - Local: "{{ eth1_internal_ip | ansible.utils.ipaddr('address') }}"
+        - Remote: "{{ ffkbu_gre | selectattr('name', 'eq', 'gre_ffkbu_sv') | map(attribute='gateway') | first | ansible.utils.ipaddr('address') }}"
+        - Independent: "True"

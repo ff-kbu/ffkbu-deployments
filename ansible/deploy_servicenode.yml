@@ -1,0 +1,32 @@
+- hosts: servicenode,!not_full_ansible_managed,!not_managed_in_this_environment
+  become: true
+
+  roles:
+    - role: networkd
+      tags: networkd
+
+    - role: bird
+      tags: bird
+
+    - role: prometheus-bird-exporter
+      tags: prometheus-bird-exporter
+
+    - role: pstat
+      tags: pstat
+
+    - role: nginx
+      tags: nginx
+      when: nginx_sites | default([]) | length
+
+    - role: nginx-exporter
+      tags: nginx-exporter
+      when: nginx_sites | default([]) | length
+
+    - role: letsencrypt
+      tags: letsencrypt
+
+    - role: bind9
+      tags: bind9
+
+    - role: bind9-exporter
+      tags: bind9-exporter

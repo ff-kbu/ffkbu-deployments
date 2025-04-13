@@ -1,0 +1,5 @@
+---
+# vars file for nginx-exporter
+nginx_exporter_url: "https://github.com/nginxinc/nginx-prometheus-exporter/releases/download/v{{ nginx_exporter_version }}/nginx-prometheus-exporter_{{ nginx_exporter_version }}_linux_amd64.tar.gz"
+nginx_exporter_user: nginx-exp
+nginx_exporter_group: nginx-exp

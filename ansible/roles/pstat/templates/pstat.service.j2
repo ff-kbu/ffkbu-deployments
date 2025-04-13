@@ -1,0 +1,13 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[Unit]
+Description=PStat server
+
+[Service]
+ExecStart=/usr/bin/python3 pstat.py
+WorkingDirectory=/{{ pstat_directory }}
+Restart=always
+SyslogIdentifier=pstat
+
+[Install]
+WantedBy=multi-user.target

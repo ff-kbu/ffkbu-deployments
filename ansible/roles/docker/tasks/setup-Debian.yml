@@ -1,0 +1,31 @@
+---
+- name: Ensure old versions of Docker are not installed.
+  ansible.builtin.apt:
+    name:
+      - docker
+      - docker-engine
+    state: absent
+
+- name: Ensure dependencies are installed.
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg2
+      - software-properties-common
+
+- name: Add docker apt key.
+  ansible.builtin.include_role:
+    name: apt-signing-key
+  vars:
+    url: "{{ docker_apt_gpg_key }}"
+    key_name: docker
+    dearmor: true
+  ignore_errors: "{{ docker_apt_ignore_key_error }}"
+
+- name: Add Docker repository.
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: present
+    update_cache: true

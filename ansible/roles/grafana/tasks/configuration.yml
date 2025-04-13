@@ -1,0 +1,22 @@
+- name: Create Grafana directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - "{{ grafana_dir }}"
+    - "{{ grafana_dir }}/provisioning"
+    - "{{ grafana_dir }}/provisioning/datasources"
+    - "{{ grafana_dir }}/provisioning/dashboards"
+
+- name: Create/Update datasources file (provisioning)
+  ansible.builtin.copy:
+    dest: "{{ grafana_dir }}/provisioning/datasources/ansible.yml"
+    content: |
+      apiVersion: 1
+      deleteDatasources: []
+      datasources:
+      {{ grafana_datasources | to_nice_yaml }}
+    backup: false
+    mode: "0640"
+  notify: restart_grafana

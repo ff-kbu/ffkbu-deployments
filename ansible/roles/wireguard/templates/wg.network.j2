@@ -1,0 +1,34 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+
+[Match]
+Name = {{ item.interface }}
+
+[Network]
+{% if item.address6 is defined %}
+Address = {{ item.address6 }}
+{% endif %}
+{% if item.address4 is defined %}
+Address = {{ item.address4 }}
+{% endif %}
+IPForward = yes
+
+{% for client in item.wireguard_clients | default([]) %}
+{% if client.allowed_ips | default ([]) | length %}
+# {{ client.name }}
+{% for ip in client.allowed_ips %}
+[Route]
+{% if ip | ansible.utils.ipv4 %}
+Gateway = {{ client.address4 | ansible.utils.ipaddr('address') }}
+Destination = {{ ip }}
+GatewayOnlink = true
+{% else %}
+Gateway = {{ client.address6 | ansible.utils.ipaddr('address') }}
+Destination = {{ ip }}
+GatewayOnlink = true
+{% endif %}
+
+{% endfor %}
+{% endif%}
+
+{% endfor %}

@@ -1,0 +1,16 @@
+---
+# handlers file for nginx
+- name: test_nginx
+  ansible.builtin.shell: "nginx -t"
+  tags:
+    - skip_ansible_lint
+
+- name: reload_nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+
+- name: restart_nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted

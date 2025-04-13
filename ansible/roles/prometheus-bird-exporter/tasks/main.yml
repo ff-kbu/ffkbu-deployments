@@ -1,0 +1,10 @@
+---
+- name: Install prometheus bird exporter
+  ansible.builtin.apt:
+    name: prometheus-bird-exporter
+
+- name: Configure prometheus-bird-exporter
+  ansible.builtin.template:
+    src: prometheus-bird-exporter.j2
+    dest: /etc/default/prometheus-bird-exporter
+  notify: restart prometheus-bird-exporter

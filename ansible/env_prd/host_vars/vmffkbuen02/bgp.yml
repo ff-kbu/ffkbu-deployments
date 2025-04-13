@@ -1,0 +1,2 @@
+bird_ibgp_peer_address_ipv4: 185.66.194.34/32
+bird_ibgp_peer_address_ipv6: 2a03:2260:101a::1/128

@@ -1,0 +1,11 @@
+---
+- name: static-files | Copy any host based files
+  ansible.builtin.copy:
+    src: ../../files/{{ inventory_hostname }}/var/www/html
+    dest: /var/www
+    owner: root
+    group: www-data
+    mode: "0640"
+  when: (role_path + '/../../files/' + inventory_hostname + '/var/www/html') is directory
+  tags:
+    - skip_ansible_lint # [E404] Doesn't need a relative path in role

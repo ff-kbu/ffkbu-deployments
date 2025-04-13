@@ -1,0 +1,35 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Prometheus Nginx Exporter
+After=nginx.service network-online.target
+Requires=nginx.service
+StartLimitIntervalSec=3600
+StartLimitBurst=720
+
+[Service]
+Type=simple
+User={{ nginx_exporter_user }}
+Group={{ nginx_exporter_group }}
+ExecStart={{ nginx_exporter_basdir }}/nginx-prometheus-exporter \
+    -nginx.scrape-uri {{ nginx_exporter_scape_url }} \
+    -web.listen-address {{ nginx_exporter_listen_address }}
+SyslogIdentifier=nginx_exporter
+Restart=always
+RestartSec=1
+
+PrivateTmp=yes
+{% for m in ansible_mounts if m.mount == '/home' %}
+ProtectHome=read-only
+{% else %}
+ProtectHome=yes
+{% endfor %}
+NoNewPrivileges=yes
+
+ProtectSystem=strict
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=yes
+
+[Install]
+WantedBy=multi-user.target

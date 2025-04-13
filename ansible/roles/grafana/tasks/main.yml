@@ -1,0 +1,91 @@
+---
+- name: Gather variables for each operating system
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+  tags:
+    - grafana_install
+    - grafana_configure
+    - grafana_datasources
+    - grafana_notifications
+    - grafana_dashboards
+
+- ansible.builtin.include_tasks: preflight.yml
+  tags:
+    - grafana_install
+    - grafana_configure
+    - grafana_datasources
+    - grafana_notifications
+    - grafana_dashboards
+
+- ansible.builtin.include_tasks: install.yml
+  tags:
+    - grafana_install
+
+- ansible.builtin.include_tasks: configure.yml
+  tags:
+    - grafana_configure
+
+- ansible.builtin.include_tasks: plugins.yml
+  when: grafana_plugins != []
+  tags:
+    - grafana_configure
+
+- name: Restart grafana before configuring datasources and dashboards
+  ansible.builtin.meta: flush_handlers
+  tags:
+    - grafana_install
+    - grafana_configure
+    - grafana_datasources
+    - grafana_notifications
+    - grafana_dashboards
+
+- name: Wait for grafana to start
+  ansible.builtin.wait_for:
+    host: "{{ grafana_address }}"
+    port: "{{ grafana_port }}"
+  tags:
+    - grafana_install
+    - grafana_configure
+    - grafana_datasources
+    - grafana_notifications
+    - grafana_dashboards
+
+- ansible.builtin.include_tasks: api_keys.yml
+  when: grafana_api_keys | length > 0
+  tags:
+    - grafana_configure
+
+- ansible.builtin.include_tasks: datasources.yml
+  when: grafana_datasources != []
+  tags:
+    - grafana_configure
+    - grafana_datasources
+
+- ansible.builtin.include_tasks: notifications.yml
+  when: grafana_alert_notifications | length > 0
+  tags:
+    - grafana_configure
+    - grafana_notifications
+
+- name: "Check if there are any dashboards in {{ grafana_dashboards_dir }}"
+  become: false
+  ansible.builtin.find:
+    paths: "{{ grafana_dashboards_dir }}"
+    patterns: '*.json'
+  delegate_to: localhost
+  run_once: true
+  register: found_dashboards
+  tags:
+    - grafana_configure
+    - grafana_dashboards
+
+- ansible.builtin.include_tasks: dashboards.yml
+  when: grafana_dashboards | length > 0 or found_dashboards.matched > 0
+  tags:
+    - grafana_configure
+    - grafana_dashboards

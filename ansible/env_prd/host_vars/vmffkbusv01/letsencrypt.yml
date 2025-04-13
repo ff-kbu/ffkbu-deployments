@@ -1,0 +1,14 @@
+letsencrypt_cert:
+  name: sv01.kbu.freifunk.net
+  domains:
+    - sv01.kbu.freifunk.net
+    - grafana.kbu.freifunk.net
+    - meet.kbu.freifunk.net
+    - pad.kbu.freifunk.net
+    - inventory.kbu.freifunk.net
+    - service.kbu.freifunk.net
+  challenge: http
+  http_auth: standalone
+
+letsencrypt_webserver_groupname: letsencrypt
+letsencrypt_opts_extra: "--register-unsafely-without-email"

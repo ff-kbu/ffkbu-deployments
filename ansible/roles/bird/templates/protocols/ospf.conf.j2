@@ -1,0 +1,34 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% for p in bird_protocols | selectattr('protocol', 'eq', 'ospf') %}
+{{ '### ' + p.description if p.description is defined }}
+protocol ospf{{ ' v3 ' if p.version | default(2) == 3 else ' ' }}{{ p.name }} {
+  {% if p.ipv4 is defined %}
+  ipv4 {
+    {% for o in p.ipv4 | default([]) %}
+    {{ o | indent(4) }};
+    {% endfor %}
+  };
+  {% endif %}
+  {% if p.ipv6 is defined %}
+  ipv6 {
+    {% for o in p.ipv6 | default([]) %}
+    {{ o | indent(4) }};
+    {% endfor %}
+  };
+  {% endif %}
+  {% for a in p.areas | default([]) %}
+  area {{ a.id}} {
+    {% for i in a.interfaces %}
+    interface "{{ i.name }}" {
+      type {{ i.type | default('broadcast') }};
+      {% for o in i.options | default([]) %}
+      {{ o }};
+      {% endfor %}
+    };
+    {% endfor %}
+  };
+  {% endfor %}
+}
+
+{% endfor %}

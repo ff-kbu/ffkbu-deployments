@@ -1,0 +1,26 @@
+- name: Create auth directory
+  ansible.builtin.file:
+    path: "{{ nginx_auth_path }}"
+    state: directory
+  run_once: true
+
+- name: Cleanup
+  ansible.builtin.file:
+    path: "{{ nginx_auth_path }}/.auth_{{ authlist.site | regex_replace('(www\\.)?(.*)','\\2') }}"
+    state: absent
+  no_log: true
+
+- name: Create auth
+  community.general.htpasswd:
+    path: "{{ nginx_auth_path }}/.auth_{{ authlist.site | regex_replace('(www\\.)?(.*)','\\2') }}"
+    name: "{{ item.1.user }}"
+    password: "{{ item.1.password }}"
+    owner: root
+    group: www-data
+    mode: "0640"
+  with_subelements:
+    - "{{ authlist.locations }}"
+    - auth
+    - skip_missing: true
+  when: authlist.locations is defined
+  no_log: true

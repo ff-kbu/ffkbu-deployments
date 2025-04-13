@@ -1,0 +1,40 @@
+---
+nginx_disable_cache_tweaks: true
+
+nginx_sites:
+  - site: en02.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host"
+
+  - site: en02.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/en02.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/en02.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: return
+            value: 403
+      - path: /status
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:8881/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+          - name: add_header
+            value: Permissions-Policy "none"
+          - name: add_header
+            value: Access-Control-Allow-Origin https://service.kbu.freifunk.net

@@ -1,0 +1,63 @@
+grafana_server:
+  protocol: http
+  enforce_domain: false
+  socket: ""
+  cert_key: ""
+  cert_file: ""
+  enable_gzip: true
+  static_root_path: public
+  router_logging: false
+
+grafana_plugins:
+  - grafana-image-renderer
+
+grafana_address: 127.0.0.1
+grafana_url: "%(protocol)s://%(domain)s/"
+
+grafana_security:
+  allow_embedding: false
+  content_security_policy_template: |
+    """script-src 'self' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' $NONCE;object-src 'none';font-src 'self';style-src 'self' 'unsafe-inline' blob:;img-src * data:;base-uri 'self';connect-src 'self' grafana.com ws://$ROOT_PATH wss://$ROOT_PATH;manifest-src 'self';media-src 'none';form-action 'self';"""
+  content_security_policy: true
+  strict_transport_security_max_age_seconds: 2592000
+  strict_transport_security_preload: true
+  strict_transport_security_subdomains: false
+  strict_transport_security: true
+  x_content_type_options: true
+  x_xss_protection: true
+
+  admin_user: !vault |
+    $ANSIBLE_VAULT;1.1;AES256
+    39326437393466356639646664393637306363393265333036376564613935336637373464666666
+    6139643036626534333233666138353736313939333137300a643831313530373664373533353135
+    31353338343137373036643731363630393636396532663163353036373561653461663665623533
+    3230356365363937650a353338396132633466326136653166643563336631396232613436656666
+    3432
+  admin_password: !vault |
+    $ANSIBLE_VAULT;1.1;AES256
+    37323031653736633933316562343034353135336563386261643034636537636635343338343764
+    3838323836346137643032373736653932623461666637380a373837613264633038343231313366
+    32333537646630353633376336323063633831353533383064326638653539356635363631653238
+    3130373831333130360a396531646366633239326339313935346663373966316134316264323166
+    33656337616331306434613535653036393365643065386433386131636663353461
+
+grafana_datasources:
+  - name: prometheus
+    type: prometheus
+    access: proxy
+    url: 'http://localhost:9090/prometheus/'
+    basicAuth: false
+    jsonData:
+      timeInterval: 60s
+
+grafana_logs_dir: "/var/log/grafana"
+grafana_data_dir: "/opt/grafana/data"
+
+# grafana authentication mechanisms
+grafana_auth:
+  disable_login_form: false
+  disable_signout_menu: false
+  anonymous:
+    enabled: true
+    org_role: Viewer
+    hide_version: true

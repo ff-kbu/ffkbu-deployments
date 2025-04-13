@@ -1,0 +1,30 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% for p in bird_protocols | selectattr('protocol', 'eq', 'bgp') %}
+{{ '### ' + p.description if p.description is defined }}
+protocol bgp {{ p.name }} {
+  local {{ p.local.ip }} as {{ p.local.as }};
+  neighbor {{ p.neighbor.ip }} as {{ p.neighbor.as }};
+  {% if p.multihop | default(false) %}
+  multihop;
+  {% endif %}
+  {% for o in p.options | default([]) %}
+  {{ o }};
+  {% endfor %}
+  {% if p.ipv4 is defined %}
+  ipv4 {
+    {% for o in p.ipv4 | default([]) %}
+    {{ o }};
+    {% endfor %}
+  };
+  {% endif %}
+  {% if p.ipv6 is defined %}
+  ipv6 {
+    {% for o in p.ipv6 | default([]) %}
+    {{ o }};
+    {% endfor %}
+  };
+  {% endif %}
+}
+
+{% endfor %}

@@ -1,0 +1,11 @@
+bind9_cache_size: 256m
+bind9_recursor: true
+bind9_listen_v6: none;
+
+bind9_forward: true
+bind9_forward_servers: "{{ ffkbu_dns_ext_server }}"
+
+bind9_our_networks:
+  - 10.0.0.0/8 # ffkbu internal ipv4 network
+  - 172.16.0.0/12 # docker network
+  - "{{ ffrl_public_network_ipv6 }}" # ffkbu internal ipv6 network

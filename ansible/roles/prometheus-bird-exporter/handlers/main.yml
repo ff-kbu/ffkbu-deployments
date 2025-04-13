@@ -1,0 +1,6 @@
+---
+- name: restart prometheus-bird-exporter
+  ansible.builtin.systemd:
+    name: prometheus-bird-exporter
+    state: restarted
+    enabled: true
