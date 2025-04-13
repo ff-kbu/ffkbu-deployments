@@ -1,0 +1,117 @@
+---
+- name: tweaks | Set vim as default editor
+  ansible.builtin.command: update-alternatives --set editor /usr/bin/vim.basic
+  tags:
+    - skip_ansible_lint
+    - tweaks
+
+- name: tweaks | Remove silent boot from Grub
+  ansible.builtin.replace:
+    path: /etc/default/grub
+    regexp: 'GRUB_CMDLINE_LINUX_DEFAULT="(.*) ?quiet ?(.*)?"'
+    replace: 'GRUB_CMDLINE_LINUX_DEFAULT="\1 \2"'
+  notify: update_grub
+  when:
+    - '"pve" not in ansible_facts.kernel'
+    - deploy_env != "vag"
+    - not provisionmarker.stat.exists
+  tags: tweaks
+
+- name: tweaks | Enable history timestamps
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    regexp: '^#?HISTTIMEFORMAT='
+    line: 'HISTTIMEFORMAT="%d/%m/%y %T "'
+  tags: tweaks
+
+- name: tweaks | Remove normal motd
+  ansible.builtin.file:
+    path: /etc/motd
+    state: absent
+  tags: tweaks
+
+- name: tweaks | Create neofetch config directory
+  ansible.builtin.file:
+    path: /etc/neofetch
+    state: directory
+  tags: tweaks
+
+- name: tweaks | Configure neofetch
+  ansible.builtin.template:
+    src: neofetch.conf.j2
+    dest: /etc/neofetch/neofetch.conf
+  tags: tweaks
+
+- name: tweaks | Create motd script
+  ansible.builtin.template:
+    src: motd.sh.j2
+    dest: /etc/profile.d/motd.sh
+    mode: "0755"
+  tags: weaks
+
+- name: tweaks | Search for defaults.vim file
+  ansible.builtin.find:
+    paths: /usr/share/vim
+    patterns: defaults.vim
+    recurse: true
+  register: vim_defaults
+  tags: tweaks
+
+- name: tweaks | Add vim mouse tweak
+  ansible.builtin.blockinfile:
+    path: "{{ vim_defaults.files[0].path }}"
+    marker: '" {mark} ANSIBLE MANAGED BLOCK'
+    block: |
+      set paste
+      set mouse=r
+  when: vim_defaults.matched > 0
+  tags: tweaks
+
+- name: tweaks | Check network interface naming scheme
+  ansible.builtin.lineinfile:
+    backup: true
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX=".*net.ifnames=0 biosdevname=0'
+    state: absent
+  check_mode: true
+  register: grub_cmdline_check
+  changed_when: false
+  when:
+    - '"pve" not in ansible_facts.kernel'
+    - deploy_env != "vag"
+    - not provisionmarker.stat.exists
+  tags: tweaks
+
+- name: tweaks | Change network interface naming scheme
+  ansible.builtin.lineinfile:
+    backrefs: true
+    path: /etc/default/grub
+    regexp: "^(GRUB_CMDLINE_LINUX=\".*)\"$"
+    line: '\1 net.ifnames=0 biosdevname=0"'
+  when:
+    - '"pve" not in ansible_facts.kernel'
+    - deploy_env != "vag"
+    - not provisionmarker.stat.exists
+    - grub_cmdline_check.found == 0
+  notify: update_grub
+  tags: tweaks
+
+- name: tweaks | Install keyboard-configuration
+  ansible.builtin.apt:
+    name:
+      - keyboard-configuration
+      - console-setup
+    state: present
+  tags: tweaks
+
+- name: tweaks | Write keyboard configration
+  ansible.builtin.template:
+    src: keyboards.j2
+    dest: /etc/default/keyboard
+    force: true
+    owner: root
+    group: root
+    mode: 'u=rw,go=r'
+  notify:
+    - dpkg-reconfigure keyboard-configuration
+  tags: tweaks

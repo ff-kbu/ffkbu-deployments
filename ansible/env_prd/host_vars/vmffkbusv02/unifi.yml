@@ -1,0 +1,7 @@
+unifi_https_bind_address: 0.0.0.0
+unifi_stun_bind_address: "{{ eth1_internal_ip | ansible.utils.ipaddr('address') }}"
+unifi_speedtest_bind_address: "{{ eth1_internal_ip | ansible.utils.ipaddr('address') }}"
+unifi_http_bind_address: "{{ eth1_internal_ip | ansible.utils.ipaddr('address') }}"
+
+unifi_ssl_letsencrypt_enabled: true
+unifi_ssl_letsencrypt_live_folder: /etc/letsencrypt/live/sv02.kbu.freifunk.net

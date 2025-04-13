@@ -1,0 +1,224 @@
+bird_ibgp_default_filter_ipv4:
+  # set bgp routes to higher preference than ospf
+  - |
+    import filter {
+      if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v4 | join(', ') }} ]) then {
+        preference = 240;
+        accept;
+      }
+      reject;
+    }
+  - |
+    export filter {
+      if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v4 | join(', ') }} ]) then {
+        preference = 240;
+        accept;
+      }
+      reject;
+    }
+  - table ffkbu_table_4
+
+bird_ibgp_default_filter_ipv6:
+# set bgp routes to higher preference than ospf
+  - |
+    import filter {
+      if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v6 | join(', ') }} ]) then {
+        preference = 240;
+        accept;
+      }
+      reject;
+    }
+  - |
+    export filter {
+      if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v6 | join(', ') }} ]) then {
+        preference = 240;
+        accept;
+      }
+      reject;
+    }
+  - table ffkbu_table_6
+
+
+bird_protocols_ibgp:
+### iBGP routings from endpoints
+  - protocol: bgp
+    name: fflwk
+    description: iBGP fflwk
+    neighbor:
+      ip: "10.100.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.100.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffmwst
+    description: iBGP ffmwst
+    neighbor:
+      ip: "10.102.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.102.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffzep
+    description: iBGP ffzep
+    neighbor:
+      ip: "10.103.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.103.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffpap
+    description: iBGP ffpap
+    neighbor:
+      ip: "10.104.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.104.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffkal
+    description: iBGP ffkal
+    neighbor:
+      ip: "10.105.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.105.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffgoet
+    description: iBGP ffgoet
+    neighbor:
+      ip: "10.106.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.106.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: simon
+    description: iBGP simon
+    neighbor:
+      ip: "10.107.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.107.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffsieg
+    description: iBGP ffsieg
+    neighbor:
+      ip: "10.108.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.108.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffrhein
+    description: iBGP ffrhein
+    neighbor:
+      ip: "10.109.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.109.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffkam
+    description: iBGP ffkam
+    neighbor:
+      ip: "10.110.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.110.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffotto
+    description: iBGP ffotto
+    neighbor:
+      ip: "10.111.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.111.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: fffried
+    description: iBGP fffried
+    neighbor:
+      ip: "10.112.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.112.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffrast
+    description: iBGP ffrast
+    neighbor:
+      ip: "10.113.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.113.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"

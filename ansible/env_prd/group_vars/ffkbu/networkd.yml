@@ -1,0 +1,13 @@
+systemd_networkd_enable_resolved: true
+systemd_networkd_symlink_resolv_conf: true
+systemd_networkd_apply_config: true
+systemd_networkd_cleanup: true
+systemd_networkd_cleanup_patterns:
+  - '^(?!wg_).*'
+
+systemd_networkd_cleanup_patterns_use_regex: true
+systemd_networkd_manage_nsswitch_config: true
+
+systemd_networkd_routing_tables:
+  - name: freifunk
+    id: 100

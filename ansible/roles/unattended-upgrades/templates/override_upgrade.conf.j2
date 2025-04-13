@@ -1,0 +1,10 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[Timer]
+# Override needs to reset OnCalendar first by setting an empty var
+# otherwise they will add up with the default 6:00 timer in
+# /lib/systemd/system/apt-daily-upgrade.timer
+OnCalendar=
+OnCalendar={{ unattended_daily_upgrade_cron_time }}
+RandomizedDelaySec={{ unattended_daily_upgrade_cron_delay_sec }}
+Persistent=false

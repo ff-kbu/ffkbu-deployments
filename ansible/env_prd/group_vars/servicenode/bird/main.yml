@@ -1,0 +1,3 @@
+---
+# defaults file for bird2
+bird_router_id: "{{ eth0_public_ipv4 | ansible.utils.ipaddr('address') }}"

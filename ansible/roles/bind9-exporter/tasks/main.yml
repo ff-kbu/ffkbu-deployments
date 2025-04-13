@@ -1,0 +1,40 @@
+---
+# tasks file for bind9-exporter
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Assert that docker is installed
+  ansible.builtin.assert:
+    that: "'docker' in services"
+    msg: "This role requires docker"
+
+- name: Check if bind9 stats port is up
+  ansible.builtin.wait_for:
+    host: "{{ bind9_exporter_statistics_hostname }}"
+    port: "{{ bind9_exporter_statistics_port }}"
+    state: started
+    timeout: 1
+  register: port_check
+  ignore_errors: true
+  no_log: true
+
+- ansible.builtin.fail:
+    msg: "Bind9 statistiscs port {{ bind9_exporter_statistics_hostname }} is not available on {{ bind9_exporter_statistics_port }}"
+  when: port_check.failed
+
+- name: Install bind9-exporter docker container
+  community.docker.docker_container:
+    name: bind9-exporter
+    image: "{{ bind9_exporter_image }}"
+    state: started
+    networks:
+      - name: host
+    restart_policy: unless-stopped
+    user: root
+    command: "--bind.stats-url http://{{ bind9_exporter_statistics_hostname }}:{{ bind9_exporter_statistics_port }}"
+    ports:
+      - "{{ bind9_exporter_listen_address }}:{{ bind9_exporter_listen_port }}:9119"
+    env:
+      TZ: "Germany/Berlin"
+    labels:
+      com.centurylinklabs.watchtower.enable: "{{ bind9_exporter_watchtower_active | lower }}"

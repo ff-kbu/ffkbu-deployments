@@ -1,0 +1,18 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% for p in bird_protocols | selectattr('protocol', 'eq', 'pipe') %}
+{{ '### ' + p.description if p.description is defined }}
+protocol pipe {
+  table {{ p.table }};
+  peer table {{ p.peer_table }};
+  {{ p.filter.type }} filter {
+    {% for acl in p.filter.acl | default([]) %}
+    if {{ acl.rule }} then {
+     {{ acl.action }};
+    }
+    {% endfor %}
+    {{ p.filter.default_action }};
+  };
+}
+
+{% endfor %}

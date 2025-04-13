@@ -1,0 +1,10 @@
+portainer_ports:
+  - 127.0.0.1:9000:9000
+
+portainer_config_directory: /opt/portainer
+
+portainer_docker_additional_options:
+  restart_policy: always
+  env:
+    "VIRTUAL_HOST": "{{ ansible_host }}"
+    "VIRTUAL_PORT": "9000"

@@ -1,0 +1,9 @@
+ffkbu_gre:
+  - name: gre_ffkbu_en
+    gateway: 10.0.1.2/32
+    remote:
+      ipv4: 10.4.0.1/24
+      ipv6: fdd3:fff4::1/64
+    local:
+      ipv4: 10.4.0.2/24
+      ipv6: fdd3:fff4::2/64

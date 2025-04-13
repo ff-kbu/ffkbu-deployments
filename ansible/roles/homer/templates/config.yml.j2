@@ -1,0 +1,36 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+title: '{{ homer_dashboard_title }}'
+subtitle: '{{ homer_dashboard_subtitle }}'
+
+header: '{{ homer_dashboard_header | default('false') }}'
+footer: '{{ homer_dashboard_footer | default('false') }}'
+
+columns: {{ homer_dashboard_columns | int }}
+connectivityCheck: {{ homer_dashboard_connectivity_check | default('true') | bool | lower }}
+
+defaults:
+  layout: {{ homer_dashboard_default_layout | default ('columns') }}
+  colorTheme: {{ homer_dashboard_color_theme }}
+
+theme: default
+
+{% if homer_colors | default ([])  | length %}
+colors:
+  {{ homer_colors | to_nice_yaml(indent=2) | indent(2,False) }}
+{% endif %}
+
+{% if homer_message | default ([]) | length %}
+message:
+  {{ homer_message |  to_nice_yaml(indent=2) | indent(2,False) }}
+{% endif %}
+
+{% if homer_links | default ([])  | length %}
+links:
+  {{ homer_links | to_nice_yaml(indent=2) | indent(2,False) }}
+{% endif %}
+
+{% if homer_services | default ([]) | length %}
+services:
+  {{ homer_services | to_nice_yaml(indent=2) | indent(2,False) }}
+{% endif %}

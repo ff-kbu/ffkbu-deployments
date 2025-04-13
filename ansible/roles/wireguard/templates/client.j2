@@ -1,0 +1,40 @@
+# Wireguard client config for {{ config.name }}
+
+[Interface]
+Address = {{ config.address4 }}
+{% if config.address6 is defined %}
+Address = {{ config.address6 }}
+{% endif %}
+{% if config.private_key is defined %}
+PrivateKey = {{ config.private_key }}
+{% else %}
+PrivateKey = PLACEHOLDER FOR YOUR PRIVATE KEY
+{% endif %}
+{% if 'preup' in config %}
+PreUp = {{ config['preup'] }}
+{% endif %}
+{% if 'postdown' in config %}
+PostDown = {{ config['postdown'] }}
+{% endif %}
+{% if 'table' in config %}
+Table = {{ config['table'] }}
+{% endif %}
+{% if 'mtu' in config %}
+MTU = {{ config['mtu'] }}
+{% endif %}
+
+[Peer]
+PublicKey = {{ item.public_key }}
+{% if 'allowed_ips' in config %}
+AllowedIPs = {{ item.address4 | default('') }} {{ item.address6 | default('') }}
+{% else %}
+AllowedIPs = 0.0.0.0/0, ::/0
+{% endif %}
+{% if item.wireguard_endpoint is defined %}
+Endpoint = {{ item.wireguard_endpoint }}:{{ item.port }}
+{% else %}
+Endpoint = {{ ansible_default_ipv4.address }}:{{ item.port }}
+{% endif %}
+{% if 'psk' in config %}
+PresharedKey = {{ config['psk'] }}
+{% endif %}

@@ -1,0 +1,28 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% for p in bird_protocols | selectattr('protocol', 'eq', 'kernel') %}
+{{ '### ' + p.description if p.description is defined }}
+protocol kernel {{ p.table }} {
+  {% if p.learn | default(false) %}
+  learn;
+  {% endif %}
+  {% if p.kernel_table is defined %}
+  kernel table {{ p.kernel_table }};
+  {% endif %}
+  {% if p.ipv4 is defined %}
+  ipv4 {
+    {% for o in p.ipv4 | default([]) %}
+    {{ o }};
+    {% endfor %}
+  };
+  {% endif %}
+  {% if p.ipv6 is defined %}
+  ipv6 {
+    {% for o in p.ipv6 | default([]) %}
+    {{ o }};
+    {% endfor %}
+  };
+  {% endif %}
+}
+
+{% endfor %}

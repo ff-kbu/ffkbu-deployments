@@ -1,0 +1,5 @@
+---
+# defaults file for bird2
+bird_router_id: "{{ lo_ffrl_public_ipv4 | ansible.utils.ipaddr('address') }}"
+
+bird_protocols: "{{ bird_protocols_local + bird_protocols_bgp + bird_protocols_ospf + bird_protocols_ibgp}}"

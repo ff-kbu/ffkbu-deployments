@@ -1,0 +1,154 @@
+prometheus_host_rules:
+  - alert: InstanceDown
+    expr: 'up{instance=~".*:9100"} == 0 OR up{env="prd"} == 0'
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.{% endraw %}'
+      summary: '{% raw %}Instance {{ $labels.instance }} down{% endraw %}'
+  - alert: CriticalCPULoad
+    expr: '100 - (avg by (instance) (irate(node_cpu_seconds_total{job="node",mode="idle",env="prd"}[5m])) * 100) > 96'
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}{{ $labels.instance }} of job {{ $labels.job }} has Critical CPU load for more than 2 minutes.{% endraw %}'
+      summary: '{% raw %}Instance {{ $labels.instance }} - Critical CPU load{% endraw %}'
+  - alert: CriticalRAMUsage
+    expr: '(1 - ((node_memory_MemFree_bytes{env="prd"} + node_memory_Buffers_bytes{env="prd"} + node_memory_Cached_bytes{env="prd"}) / node_memory_MemTotal_bytes{env="prd"})) * 100 > 98'
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}{{ $labels.instance }} has Critical Memory Usage more than 5 minutes.{% endraw %}'
+      summary: '{% raw %}Instance {{ $labels.instance }} has Critical Memory Usage{% endraw %}'
+  - alert: CriticalDiskSpace
+    expr: 'node_filesystem_free_bytes{mountpoint!~"^/run(/.*|$)",fstype!~"(squashfs|fuse.*)",job="node"} / node_filesystem_size_bytes{job="node"} < 0.1'
+    for: 4m
+    labels:
+      severity: critical
+    annotations:
+      description: '{% raw %}{{ $labels.instance }} of job {{ $labels.job }} has less than 10% space remaining.{% endraw %}'
+      summary: '{% raw %}Instance {{ $labels.instance }} - Critical disk space usage{% endraw %}'
+  - alert: RebootRequired
+    expr: 'node_reboot_required > 0'
+    labels:
+      severity: warning
+    annotations:
+      description: '{% raw %}{{ $labels.instance }} requires a reboot.{% endraw %}'
+      summary: '{% raw %}Instance {{ $labels.instance }} - reboot required{% endraw %}'
+  - alert: ClockSkewDetected
+    expr: 'abs(node_timex_offset_seconds) * 1000 > 30'
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      description: '{% raw %}Clock skew detected on {{ $labels.instance }}. Ensure NTP is configured correctly on this host.{% endraw %}'
+      summary: '{% raw %}Instance {{ $labels.instance }} - Clock skew detected{% endraw %}'
+  - alert: HostUnusualNetworkThroughputIn
+    expr: 'sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host unusual network throughput in (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Host network interfaces are probably receiving too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostUnusualNetworkThroughputOut
+    expr: 'sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host unusual network throughput out (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Host network interfaces are probably sending too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostUnusualDiskReadRate
+    expr: 'sum by (instance) (rate(node_disk_read_bytes_total{env="prd"}[2m])) / 1024 / 1024 > 50'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host unusual disk read rate (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Disk is probably reading too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostUnusualDiskWriteRate
+    expr: 'sum by (instance) (rate(node_disk_written_bytes_total{env="prd"}[2m])) / 1024 / 1024 > 50'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host unusual disk write rate (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Disk is probably writing too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostDiskWillFillIn4Hours
+    expr: 'predict_linear(node_filesystem_free_bytes{fstype!~"tmpfs",env="prd"}[1h], 4 * 3600) < 0'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host disk will fill in 4 hours (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Disk will fill in 4 hours at current write rate\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostOutOfInodes
+    expr: 'node_filesystem_files_free{mountpoint ="/rootfs"} / node_filesystem_files{mountpoint ="/rootfs"} * 100 < 10'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host out of inodes (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Disk is almost running out of available inodes (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostUnusualDiskReadLatency
+    expr: 'rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m]) > 0.1 and rate(node_disk_reads_completed_total[1m]) > 0'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host unusual disk read latency (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Disk latency is growing (read operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostUnusualDiskWriteLatency
+    expr: 'rate(node_disk_write_time_seconds_total[1m]) / rate(node_disk_writes_completed_total[1m]) > 0.1 and rate(node_disk_writes_completed_total[1m]) > 0'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host unusual disk write latency (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Disk latency is growing (write operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostSwapIsFillingUp
+    expr: '(1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 80'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host swap is filling up (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}Swap is filling up (>80%)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostOomKillDetected
+    expr: 'increase(node_vmstat_oom_kill[5m]) > 0'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host OOM kill detected (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}OOM kill detected\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostNetworkReceiveErrors
+    expr: 'increase(node_network_receive_errs_total[5m]) > 0'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host Network Receive Errors (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} receive errors in the last five minutes.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+  - alert: HostNetworkTransmitErrors
+    expr: 'increase(node_network_transmit_errs_total[5m]) > 0'
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}Host Network Transmit Errors (instance {{ $labels.instance }}){% endraw %}'
+      description: '{% raw %}{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} transmit errors in the last five minutes.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}{% endraw %}'
+
+  - alert: HighNetworkTraffic
+    expr: |
+      sum by (instance) (increase(node_network_transmit_bytes_total{device=~"(eth0|gre_ffrl.*|wg_.*)"}[720h])) / 1024 / 1024 / 1024 / 1024 > 17
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High network traffic detected"
+      description: "{% raw %}Network traffic has exceeded 17 TB over the past 30 days on {{ $labels.instance }}{% endraw %}"

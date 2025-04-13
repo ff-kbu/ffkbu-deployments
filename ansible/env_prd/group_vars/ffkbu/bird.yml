@@ -1,0 +1,8 @@
+bird_log_file: /var/log/bird.log
+bird_log_level: all
+
+bird_routing_tables:
+  - table: ffkbu_table_4
+    type: ipv4
+  - table: ffkbu_table_6
+    type: ipv6

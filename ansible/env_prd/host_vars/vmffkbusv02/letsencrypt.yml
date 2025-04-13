@@ -1,0 +1,12 @@
+letsencrypt_cert:
+  name: sv02.kbu.freifunk.net
+  domains:
+    - sv02.kbu.freifunk.net
+    - unifi.kbu.freifunk.net
+    - uisp.kbu.freifunk.net
+    - vault.kbu.freifunk.net
+  challenge: http
+  http_auth: standalone
+
+letsencrypt_webserver_groupname: letsencrypt
+letsencrypt_opts_extra: "--register-unsafely-without-email"

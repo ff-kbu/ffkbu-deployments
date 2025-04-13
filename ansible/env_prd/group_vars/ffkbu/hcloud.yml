@@ -1,0 +1,13 @@
+hcloud_labels_global:
+  - FFKBU
+  - Freifunk
+
+hcloud_networks:
+  - name: net_ffkbu
+    ip_range: 10.0.0.0/16
+    subnetworks:
+      - "{{ ffkbu_net }}"
+    labels:
+      type: ffkbu
+
+hcloud_backups: true

@@ -1,0 +1,2 @@
+nginx_resolver_ip: 10.0.1.3 10.0.1.4
+nginx_syslog_server: unix:/dev/log

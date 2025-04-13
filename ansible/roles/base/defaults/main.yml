@@ -1,0 +1,99 @@
+---
+# defaults file for base
+debian_base_packages:
+  - acl
+  - apt-transport-https
+  - aptitude
+  - arping
+  - bash-completion
+  - bmon
+  - build-essential
+  - coreutils
+  - cron
+  - curl
+  - dirmngr
+  - dnsutils
+  - ethtool
+  - git
+  - haveged
+  - hdparm
+  - hstr
+  - htop
+  - iftop
+  - iotop
+  - iptables-persistent
+  - iptraf-ng
+  - ldap-utils
+  - less
+  - libc6
+  - libffi-dev
+  - liblz4-tool
+  - libnss-ldap
+  - linux-headers-amd64
+  - lvm2
+  - mtr-tiny
+  - multitail
+  - net-tools
+  - nethogs
+  - neofetch
+  - nmap
+  - ntp
+  - ntpdate
+  - openssl
+  - parted
+  - pigz
+  - psmisc
+  - python3-lxml
+  - python3-netaddr
+  - python3-pip
+  - python3-distutils-extra
+  - python3-docker
+  - python3-jmespath
+  - python3-lxml
+  - python3-netaddr
+  - python3-pip
+  - rsyslog
+  - rsync
+  - snmpd
+  - software-properties-common
+  - sudo
+  - sysstat
+  - systemd-coredump
+  - tcpdump
+  - telnet
+  - unzip
+  - vim
+  - wget
+  - xinetd
+  - zip
+
+# List of packages to be purged in Debian
+debian_purge_packages:
+  - samba-common
+  - samba-common-bin
+  - smbclient
+
+base_pip_packages:
+  - pyopenssl
+  - netaddr
+  - jmespath
+  - PyMySQL
+
+base_deploy_sshkeys_for_user_root: []
+
+base_custom_hosts: []
+  # - ip: 1.2.3.4
+  #   aliases:
+  #     - foo.example.com
+  #     - bar.anothersite.de
+
+base_iptables_rules: []
+
+base_neofetch_custom_metrics: []
+
+base_extra_ips: []
+  # - interface: ""
+  #   ip4/ip6: ""
+
+base_dns_server: []
+base_dns_domains: []

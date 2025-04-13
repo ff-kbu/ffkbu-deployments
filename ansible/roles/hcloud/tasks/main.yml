@@ -1,0 +1,138 @@
+---
+# tasks file for hcloud
+- name: Create network
+  hetzner.hcloud.hcloud_network:
+    name: "{{ item.name | mandatory }}"
+    ip_range: "{{ item.ip_range | mandatory }}"
+    api_token: "{{ hetzner_token }}"
+    labels: "{{ item.labels | default(omit) }}"
+    delete_protection: true
+  loop: "{{ hcloud_networks }}"
+  delegate_to: localhost
+  run_once: true
+  become: false
+  loop_control:
+    label: "{{ item.name }}"
+  tags: hcloud-network
+
+- name: Create Subnetworkk
+  hetzner.hcloud.hcloud_subnetwork:
+    network: "{{ item.0.name | mandatory }}"
+    ip_range: "{{ item.1 | mandatory }}"
+    api_token: "{{ hetzner_token }}"
+    network_zone: eu-central
+    type: cloud
+  loop: "{{ hcloud_networks | subelements('subnetworks') }}"
+  delegate_to: localhost
+  run_once: true
+  become: false
+  loop_control:
+    label: "Network {{ item.0.name }} > {{ item.1 }}"
+  tags: hcloud-network
+
+- name: Aggregate placement groups
+  ansible.builtin.set_fact:
+    hcloud_placement_groups_sorted: "{{ hcloud_placement_groups_sorted | default([]) + [hostvars[item]['hcloud_placement_group']] }}"
+  loop: "{{ play_hosts }}"
+  when: hcloud_placement_group
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - hcloud-servergroups
+    - hcloud_server
+
+- name: Create spreading groups
+  hetzner.hcloud.hcloud_placement_group:
+    name: "{{ item }}"
+    api_token: "{{ hetzner_token }}"
+    type: spread
+  become: false
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ hcloud_placement_groups_sorted | unique }}"
+  when: hcloud_placement_groups_sorted | length
+  tags:
+    - hcloud-servergroups
+    - hcloud_server
+
+- name: Create server
+  hetzner.hcloud.hcloud_server:
+    name: "{{ hcloud_name | default(inventory_hostname_short) }}"
+    server_type: "{{ hcloud_server_type | mandatory }}"
+    api_token: "{{ hetzner_token }}"
+    location: "{{ hcloud_location | mandatory }}"
+    image: "{{ hcloud_image | mandatory }}"
+    placement_group: "{{ hcloud_placement_group }}"
+    ssh_keys: "{{ hcloud_ssh_keys | default(false) }}"
+    enable_ipv4: "{{ hcloud_enable_ipv4 | default(true) }}"
+    enable_ipv6: "{{ hcloud_enable_ipv6 | default(true) }}"
+    rebuild_protection: true
+    delete_protection: true
+    backups: "{{ hcloud_backups | default(false) }}"
+    labels: "{{ hcloud_labels | default(omit) }}"
+    user_data: "{{ hcloud_user_data | default(omit) }}"
+  register: server_setup_result
+  become: false
+  delegate_to: localhost
+  tags: hcloud_server
+
+- name: Add server to subnetwork
+  hetzner.hcloud.hcloud_server_network:
+    network: "{{ item.name | mandatory }}"
+    server: "{{ hcloud_name | default(inventory_hostname_short) }}"
+    ip: "{{ item.ip | mandatory }}"
+    api_token: "{{ hetzner_token }}"
+  loop: "{{ hcloud_private_networks }}"
+  become: false
+  delegate_to: localhost
+  when:
+    - hostvars[inventory_hostname]['hcloud_private_networks'] is defined
+  tags: hcloud-network
+
+- name: Add ipv4 dns ptr
+  hetzner.hcloud.hcloud_rdns:
+    server: "{{ hcloud_name | default(inventory_hostname_short) }}"
+    ip_address: "{{ server_setup_result.hcloud_server.ipv4_address }}"
+    dns_ptr: "{{ hcloud_dns_ptr }}"
+    api_token: "{{ hetzner_token }}"
+  when:
+    - hostvars[inventory_hostname]['hcloud_dns_ptr'] is defined
+    - server_setup_result.hcloud_server.ipv4_address is defined
+  become: false
+  delegate_to: localhost
+  tags: hcloud_dns
+
+- name: Add ipv6 dns ptr
+  hetzner.hcloud.hcloud_rdns:
+    server: "{{ hcloud_name | default(inventory_hostname_short) }}"
+    ip_address: "{{ server_setup_result.hcloud_server.ipv6 | ansible.utils.ipaddr('next_usable') }}"
+    dns_ptr: "{{ hcloud_dns_ptr }}"
+    api_token: "{{ hetzner_token }}"
+  when:
+    - hostvars[inventory_hostname]['hcloud_dns_ptr'] is defined
+    - server_setup_result.hcloud_server.ipv6 is defined
+  become: false
+  delegate_to: localhost
+  tags: hcloud_dns
+
+- name: Create floating ips
+  hetzner.hcloud.hcloud_floating_ip:
+    name: "{{ item.name | mandatory }}"
+    type: "{{ item.type | mandatory }}"
+    api_token: "{{ hetzner_token }}"
+    server: "{{ inventory_hostname }}"
+    labels: "{{ hcloud_labels | default(omit) }}"
+    delete_protection: true
+  register: floating_ip_result
+  loop: "{{ hostvars[inventory_hostname]['hcloud_floating_ips'] }}"
+  when: hostvars[inventory_hostname]['hcloud_floating_ips'] is defined
+  delegate_to: localhost
+  become: false
+  loop_control:
+    label: "{{ item.name }}"
+  tags: hcloud_ips
+
+- name: Server info
+  ansible.builtin.debug:
+    msg: "{{ server_setup_result }}"
+  tags: hcloud_server

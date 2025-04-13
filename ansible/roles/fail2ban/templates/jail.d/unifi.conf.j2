@@ -1,0 +1,11 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[unifi]
+enabled = true
+port = 8080,8443
+filter = unifi
+logpath = {{ fail2ban_unifi_logfile }}
+maxretry = 4
+bantime = 3600
+findtime = 900
+action = iptables-multiport[name="unifi", port="8443,8080"]

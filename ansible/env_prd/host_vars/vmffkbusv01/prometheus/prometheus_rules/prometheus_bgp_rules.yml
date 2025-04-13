@@ -1,0 +1,9 @@
+prometheus_bgp_rules:
+  - alert: BGPSessionDown
+    expr: sum by (instance,name) (bird_protocol_up{proto="BGP",state!="Established",state!="" }) == 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: '{% raw %}BGP Session offline on {{ $labels.instance }} ({{ $labels.name }}){% endraw %}'
+      description: '{% raw %}BGP session {{ $labels.name }} on {{ $labels.instance }} is offline!{% endraw %}'

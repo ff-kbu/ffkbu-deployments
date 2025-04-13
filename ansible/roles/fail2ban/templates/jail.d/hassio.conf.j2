@@ -1,0 +1,10 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[hassio]
+enabled = true
+port     = http,https
+logpath  = /usr/share/hassio/homeassistant/home-assistant.log
+maxretry = 4
+bantime = 3600
+findtime = 900
+filter = hassio

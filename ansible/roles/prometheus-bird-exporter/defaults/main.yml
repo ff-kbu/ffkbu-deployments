@@ -1,0 +1,4 @@
+---
+prometheus_bird_exporter_enable_ospf: true
+prometheus_bird_exporter_use_version_2: true
+prometheus_bird_exporter_web_listen_address: :9324

@@ -1,0 +1,21 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[Unit]
+Description=Freifunk exporter %i
+
+After=network.target
+StartLimitIntervalSec=3600
+StartLimitBurst=720
+
+[Service]
+User={{ freifunk_exporter_user }}
+Group={{ freifunk_exporter_group }}
+
+WorkingDirectory={{ freifunk_exporter_base_folder }}
+EnvironmentFile={{ freifunk_exporter_base_folder }}/%i.conf
+ExecStart={{ freifunk_exporter_base_folder }}/freifunk-exporter --source-url "$DATA_URL" --addr {{ freifunk_exporter_bind_address }}:${PORT} --cache-interval {{ freifunk_exporter_data_refreshtime }}
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target

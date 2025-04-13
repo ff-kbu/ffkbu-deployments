@@ -1,0 +1,20 @@
+---
+- ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
+  when: vaultwarden_uninstall|bool
+  tags: uninstall-vaultwarden
+
+- ansible.builtin.include_tasks: "{{ role_path }}/tasks/user.yml"
+  when: vaultwarden_uninstall|bool is false
+  tags: install-vaultwarden
+
+- ansible.builtin.include_tasks: "{{ role_path }}/tasks/volumes.yml"
+  when: vaultwarden_uninstall|bool is false
+  tags: install-vaultwarden
+
+- ansible.builtin.include_tasks: "{{ role_path }}/tasks/vaultwarden.yml"
+  when: vaultwarden_uninstall|bool is false
+  tags: install-vaultwarden
+
+- ansible.builtin.include_tasks: "{{ role_path }}/tasks/migration.yml"
+  when: vaultwarden_data is defined and vaultwarden_uninstall is false
+  tags: migrate-vaultwarden

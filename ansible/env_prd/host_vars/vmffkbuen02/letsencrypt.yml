@@ -1,0 +1,9 @@
+letsencrypt_cert:
+  name: en02.kbu.freifunk.net
+  domains:
+    - en02.kbu.freifunk.net
+  challenge: http
+  http_auth: standalone
+
+letsencrypt_webserver_groupname: letsencrypt
+letsencrypt_opts_extra: "--register-unsafely-without-email"

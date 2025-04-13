@@ -1,0 +1,7 @@
+prometheus_bind9_exporter_targets:
+  - targets:
+      - vmffkbusv01.ffkbu.lan:9119
+      - vmffkbusv02.ffkbu.lan:9119
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd

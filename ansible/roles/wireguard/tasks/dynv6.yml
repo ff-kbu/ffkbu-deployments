@@ -1,0 +1,39 @@
+---
+- name: Install required dynv6 updater apt packages
+  ansible.builtin.apt:
+    name:
+      - jq
+      - curl
+  notify: restart_dynv6_updater
+  tags: dynv6-updater
+
+- name: Create dynv6 updater directory
+  ansible.builtin.file:
+    path: "{{ wireguard_dynv6_base_path }}"
+    state: directory
+    mode: "0750"
+  tags: dynv6-updater
+
+- name: Write dynv6 updater script
+  ansible.builtin.template:
+    src: dynv6_updater.sh.j2
+    dest: "{{ wireguard_dynv6_base_path }}/dynv6_updater.sh"
+    mode: "0750"
+  notify: restart_dynv6_updater
+  tags: dynv6-updater
+
+- name: Write dynv6 token file
+  ansible.builtin.template:
+    src: dynv6_token.j2
+    dest: "{{ wireguard_dynv6_base_path }}/.dynv6_token"
+    mode: "0640"
+  notify: restart_dynv6_updater
+  tags: dynv6-updater
+
+- name: Install systemd service
+  ansible.builtin.template:
+    src: dynv6_updater.service.j2
+    dest: /etc/systemd/system/dynv6_updater.service
+    mode: "0640"
+  notify: restart_dynv6_updater
+  tags: dynv6-updater

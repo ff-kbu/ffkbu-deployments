@@ -1,0 +1,66 @@
+---
+- name: textfile-collector | Check script apt.sh exists
+  ansible.builtin.stat:
+    path: "{{ node_exporter_textfile_scripts_dir }}/apt.sh"
+  register: txtcollect_apt
+  when:
+    - ansible_distribution == 'Debian'
+
+- name: textfile-collector | Configure cron job to expose apt metrics
+  ansible.builtin.cron:
+    name: "expose apt metrics"
+    user: root
+    minute: "0"
+    # sponge reads standard input and writes it out to the specified file.
+    # Unlike a shell redirect, sponge soaks up all its input before opening the output file.
+    # This allows constricting pipelines that read from and write to the same file.
+    # see also: https://github.com/prometheus-community/node-exporter-textfile-collector-scripts
+    job: "{{ node_exporter_textfile_scripts_dir }}/apt.sh | sponge {{ node_exporter_textfile_dir }}/apt.prom"
+  when:
+    - ansible_distribution == 'Debian'
+    - txtcollect_apt.stat.exists
+
+- name: textfile-collector | Check script debian_version.sh exists
+  ansible.builtin.stat:
+    path: "{{ node_exporter_textfile_scripts_dir }}/debian_version.sh"
+  register: txtcollect_debian_version
+  when:
+    - ansible_distribution == 'Debian'
+
+# Feature: Include OS release/version metric: https://github.com/prometheus/node_exporter/issues/1574
+- name: textfile-collector | Configure cron job to expose debian_version metrics
+  ansible.builtin.cron:
+    name: "expose debian_version metrics"
+    user: root
+    minute: "0"
+    # sponge reads standard input and writes it out to the specified file.
+    # Unlike a shell redirect, sponge soaks up all its input before opening the output file.
+    # This allows constricting pipelines that read from and write to the same file.
+    # see also: https://github.com/prometheus-community/node-exporter-textfile-collector-scripts
+    job: "{{ node_exporter_textfile_scripts_dir }}/debian_version.sh | sponge {{ node_exporter_textfile_dir }}/debian_version.prom"
+  when:
+    - ansible_distribution == 'Debian'
+    - txtcollect_debian_version.stat.exists
+
+- name: textfile-collector | Check script minio.sh exists
+  ansible.builtin.stat:
+    path: "{{ node_exporter_textfile_scripts_dir }}/minio.sh"
+  register: txtcollect_minio
+  when:
+    - ansible_distribution == 'Debian'
+    - "'minio' in group_names"
+
+# Feature: Include OS release/version metric: https://github.com/prometheus/node_exporter/issues/1574
+- name: textfile-collector | Configure cron job to expose minio metrics
+  ansible.builtin.cron:
+    name: "expose minio metrics"
+    user: root
+    # sponge reads standard input and writes it out to the specified file.
+    # Unlike a shell redirect, sponge soaks up all its input before opening the output file.
+    # This allows constricting pipelines that read from and write to the same file.
+    # see also: https://github.com/prometheus-community/node-exporter-textfile-collector-scripts
+    job: "{{ node_exporter_textfile_scripts_dir }}/minio.sh | sponge {{ node_exporter_textfile_dir }}/minio.prom"
+  when:
+    - ansible_distribution == 'Debian'
+    - "'minio' in group_names"
+    - txtcollect_minio.stat.exists

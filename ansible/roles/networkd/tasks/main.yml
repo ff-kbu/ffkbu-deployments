@@ -1,0 +1,43 @@
+---
+- name: Populate service facts.
+  ansible.builtin.service_facts:
+
+- name: Import cleanup tasks
+  ansible.builtin.import_tasks: cleanup.yml
+  when: systemd_networkd_cleanup | bool
+
+- name: Import config tasks
+  ansible.builtin.import_tasks: config.yml
+
+- name: Enable systemd-networkd
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    enabled: true
+  when: systemd_networkd_network or systemd_networkd_link or systemd_networkd_netdev
+
+- name: Install systemd-resolved
+  ansible.builtin.apt:
+    name: systemd-resolved
+  when: systemd_networkd_enable_resolved
+
+- name: Start and enable systemd-resolved
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    enabled: true
+    state: started
+  when: systemd_networkd_enable_resolved
+
+- name: Replace /etc/resolv.conf with a symlink to the systemd-resolved stub
+  ansible.builtin.file:
+    path: /etc/resolv.conf
+    src: /run/systemd/resolve/resolv.conf
+    state: link
+    force: true
+  when: systemd_networkd_symlink_resolv_conf
+
+- name: Reload bird
+  ansible.builtin.systemd:
+    name: bird
+    state: reloaded
+  when:
+    - '"bird.service" in services'

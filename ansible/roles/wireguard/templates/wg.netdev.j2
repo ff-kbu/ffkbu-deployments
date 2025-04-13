@@ -1,0 +1,22 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+
+[NetDev]
+Name = {{ item.interface }}
+Kind = wireguard
+Description = WireGuard VPN interface
+
+[WireGuard]
+PrivateKeyFile = {{ wireguard_private_key_dir }}/{{ item.interface }}
+ListenPort = {{ item.port | int }}
+
+{% for c in item.wireguard_clients %}
+# {{ c.name }}
+[WireGuardPeer]
+PublicKey = {{ c.public_key }}
+{% if 'psk' in c %}
+PresharedKey = {{ c.psk }}
+{% endif %}
+AllowedIPs = {% if c.address4 is defined %}{{ c.address4 }}{% endif %} {% if c.address6 is defined %}{{ c.address6 }}{% endif %} {% if c.allowed_ips is defined %}{{ c.allowed_ips | join(' ') }}{% endif %}
+
+{% endfor %}

@@ -1,0 +1,13 @@
+base_neofetch_custom_metrics:
+  - name: "Assigned IPv4"
+    value: "$(ip a s eth0 | grep -o 'inet [0-9.]\\+' | awk '{printf \"%s \", $2}')"
+  - name: "Assigned IPv6"
+    value: "$(ip -6 a s eth0 | grep -E 'inet6 [0-9a-fA-F:]+' | grep -v 'scope link' | awk -F '/' '{print $1}' | awk '{print $2}')"
+  - name: "Internal IPv4"
+    value: "$(ip a s eth1 | grep -o 'inet [0-9.]\\+' | awk '{printf \"%s \", $2}')"
+  - name: "FQDN"
+    value: "$(nslookup {{ ansible_default_ipv4.address | ansible.utils.ipaddr('address') }} | awk -F'= ' '/name/ {print $2}' | cut -d' ' -f1 | sed 's/\\.$//')"
+  - name: "Clients (Hood)"
+    value: "$(batctl tg |wc -l)"
+  - name: "Peers (lokal)"
+    value: "$(wg show wg0 peers)"

@@ -1,0 +1,12 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[INCLUDES]
+before = common.conf
+
+[Definition]
+failregex = ^%(__prefix_line)s.*Login attempt or request with invalid authentication from <HOST>.*$
+
+ignoreregex = ^%(__prefix_line)s.*DEBUG
+
+[Init]
+datepattern = ^%%Y-%%m-%%d %%H:%%M:%%S

@@ -1,0 +1,22 @@
+---
+- name: Push env file
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/vaultwarden.env.j2"
+    dest: "{{ vaultwarden_remote_env_path }}"
+  register: envpush
+
+- name: "Spawn container"
+  community.docker.docker_container:
+    name: "{{ vaultwarden_container_name }}"
+    image: "vaultwarden/server:{{ vaultwarden_image_tag|string }}"
+    pull: "{{ vaultwarden_pull }}"
+    user: "{{ vaultwarden_linux_user_uid }}"
+    networks: "{{ vaultwarden_networks }}"
+    ports: "{{ vaultwarden_ports }}"
+    volumes:
+      - "{{ vaultwarden_install_path|string }}:/data"
+    env_file: "{{ vaultwarden_remote_env_path }}"
+    labels: "{{ vaultwarden_labels }}"
+    restart_policy: "{{ vaultwarden_restart_policy }}"
+    recreate: "{{ 'yes' if envpush.changed else 'no' }}"
+    state: "{{ vaultwarden_container_state }}"

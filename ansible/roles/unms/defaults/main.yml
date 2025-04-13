@@ -1,0 +1,16 @@
+---
+# Purpose: Default vars for unifi
+# Last Updated: 2018.06.11
+# Notes:
+
+unifi_base_directory: /opt/unifi
+
+unifi_watchtower_active: true
+
+unifi_https_bind_address: 0.0.0.0
+unifi_stun_bind_address: 127.0.0.1
+unifi_http_bind_address: 0.0.0.0
+unifi_speedtest_bind_address: 0.0.0.0
+
+unifi_ssl_letsencrypt_enabled: false
+unifi_ssl_letsencrypt_live_folder: /etc/letsencrypt/live/my.domain

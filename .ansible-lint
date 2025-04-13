@@ -1,0 +1,28 @@
+parseable: true
+quiet: true
+skip_list:
+  - skip_ansible_lint # use this tag for skipping corner-cases
+  - "var-spacing" # see: https://github.com/ansible/ansible-lint/issues/505
+  - "no-jinja-nesting" # https://ansible-lint.readthedocs.io/en/latest/default_rules.html#nested-jinja-pattern
+  - "risky-file-permissions" # see: https://github.com/ansible/ansible/issues/67794#issuecomment-672921617
+  - "git-latest" # git version per default is HEAD
+  - "empty-string-compare" # allow compare to empty string
+  - "playbook-extension" # allow files without yml extension
+  - "risky-shell-pipe" # Pipefail not needed
+  - "meta-no-info" # No 'galaxy_info' found
+  - "ignore-errors"
+  - "var-naming"
+  - "no-changed-when"
+  - "no-free-form"
+  - "no-handler"
+  - name[casing]
+  - name[missing]
+  - name[play]
+  - yaml[commas]
+  - yaml[line-length]
+  - yaml[comments]
+  - yaml[new-line-at-end-of-file]
+  - key-order[task]
+  - name[template]
+use_default_rules: true
+verbosity: 0

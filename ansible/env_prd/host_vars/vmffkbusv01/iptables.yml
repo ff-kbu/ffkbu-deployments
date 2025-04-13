@@ -1,0 +1,76 @@
+base_iptables_rules:
+  - chain: INPUT
+    in_interface: "!eth0"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: OUTPUT
+    out_interface: "!eth0"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: INPUT
+    in_interface: "!eth0"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv6
+
+  - chain: OUTPUT
+    out_interface: "!eth0"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv6
+
+  - chain: INPUT
+    in_interface: eth0
+    destination: "{{ ansible_default_ipv4.address }}"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: OUTPUT
+    out_interface: eth0
+    source: "{{ ansible_default_ipv4.address }}"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: INPUT
+    in_interface: eth0
+    destination: "{{ ansible_default_ipv6.address }}"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv6
+
+  - chain: OUTPUT
+    out_interface: eth0
+    source: "{{ ansible_default_ipv6.address }}"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv6
+
+  - chain: INPUT
+    policy: DROP
+    ip_version: ipv4
+
+  - chain: INPUT
+    policy: DROP
+    ip_version: ipv6
+
+  - chain: OUTPUT
+    policy: DROP
+    ip_version: ipv4
+
+  - chain: OUTPUT
+    policy: DROP
+    ip_version: ipv6
+
+  - chain: FORWARD
+    policy: ACCEPT
+    ip_version: ipv4
+
+  - chain: FORWARD
+    policy: ACCEPT
+    ip_version: ipv6

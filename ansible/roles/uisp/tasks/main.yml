@@ -1,0 +1,44 @@
+---
+# tasks file for uisp
+- name: Get latest version
+  ansible.builtin.uri:
+    url: "{{ uisp_git_repo_url }}/{{ uisp_git_repo_branch }}/latest-version"
+    method: GET
+    return_content: true
+  register: http_response
+  when: uisp_version == 'latest'
+
+- ansible.builtin.set_fact:
+    uisp_version: "{{ http_response.content | regex_replace('\\n', '') }}"
+  when: uisp_version == 'latest'
+
+- ansible.builtin.set_fact:
+    uisp_pkg_url: "{{ uisp_git_repo_url }}/{{ uisp_git_repo_branch }}/unms-{{ uisp_version }}.tar.gz"
+
+- name: Create temporary directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: uisp
+  register: setup_dir
+
+- name: Download setup script
+  ansible.builtin.unarchive:
+    src: "{{ uisp_pkg_url }}"
+    dest: "{{ setup_dir.path }}"
+    remote_src: true
+    mode: "0750"
+
+- name: Apply setup fix
+  # https://community.ui.com/questions/UISP-installation-error/afedb63b-407a-4f1b-b9e4-0987efb4dddd
+  ansible.builtin.replace:
+    path: "{{ setup_dir.path }}/docker-compose.yml.template"
+    regexp: "fluentd-async-connect"
+    replace: "fluentd-async"
+
+- name: Run setup
+  ansible.builtin.shell: "{{ setup_dir.path }}/install-full.sh --unattended --http-port {{ uisp_http_port }} --https-port {{ uisp_https_port }} --update {{ uisp_update | default(false) }}"
+  tags:
+    - skip_ansible_lint
+  environment:
+    UNMS_HOME_DIR: "{{ uisp_home_dir }}"
+    UNMS_USER: "{{ uisp_user }}"

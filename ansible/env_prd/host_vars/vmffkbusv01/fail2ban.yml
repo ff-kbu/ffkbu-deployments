@@ -1,0 +1,3 @@
+fail2ban_services:
+  - name: sshd
+  - name: nginx-http-auth

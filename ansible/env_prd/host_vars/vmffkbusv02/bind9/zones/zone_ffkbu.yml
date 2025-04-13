@@ -1,0 +1,3 @@
+zone_ffkbu:
+  - name: "{{ ffkbu_domain_int }}"
+    type: slave

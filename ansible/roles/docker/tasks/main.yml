@@ -1,0 +1,36 @@
+---
+- ansible.builtin.include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Install Docker.
+  ansible.builtin.package:
+    name: "{{ docker_package }}"
+    state: "{{ docker_package_state }}"
+  notify: restart docker
+
+- ansible.builtin.include_tasks: setup.yml
+
+- name: Ensure handlers are notified now to avoid firewall conflicts.
+  ansible.builtin.meta: flush_handlers
+
+- ansible.builtin.include_tasks: docker-compose.yml
+  when: docker_install_compose | bool
+
+- ansible.builtin.include_tasks: docker-users.yml
+  when: docker_users | length > 0
+
+- name: Add cronjob to remove all unused containers, networks, images, volumes
+  ansible.builtin.cron:
+    name: "Docker System Prune - Remove all unused containers, networks, images"
+    job: /usr/bin/flock -w0 -E0 /var/run/docker_system_cleanup.lock /usr/bin/docker system prune --all --volumes --force && /usr/bin/docker volume prune --all --force
+    minute: "30"
+    hour: "2"
+  when: docker_system_prune | bool
+
+- ansible.builtin.include_tasks: cadvisor.yml
+  when: docker_cadvisor_active | bool
+  tags: cadvisor
+
+- ansible.builtin.include_tasks: watchtower.yml
+  when: docker_watchtower_active | bool
+  tags: watchtower

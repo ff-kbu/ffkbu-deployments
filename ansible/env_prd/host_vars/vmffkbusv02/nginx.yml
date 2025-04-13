@@ -1,0 +1,116 @@
+---
+nginx_disable_cache_tweaks: true
+
+nginx_sites:
+  - site: sv02.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host"
+
+  - site: vault.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host"
+
+  - site: unifi.kbu.freifunk.net
+    aliases:
+      - "unifi.{{ ffkbu_domain_int }}"
+    port: 80
+    redirect_url: "https://$http_host:8443"
+
+  - site: uisp.kbu.freifunk.net
+    port: 80
+    redirect_url: "https://$http_host:9443"
+
+  - site: uisp.kbu.freifunk.net
+    port: 80
+    locations:
+      - path: /.well-known/acme-challenge/
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:9080/.well-known/acme-challenge/"
+
+  - site: sv02.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv02.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv02.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: return
+            value: 403
+      - path: /portainer/
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:9000/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+          - name: add_header
+            value: Permissions-Policy "none"
+      - path: /status
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:8881/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+          - name: add_header
+            value: Permissions-Policy "none"
+          - name: add_header
+            value: Access-Control-Allow-Origin https://service.kbu.freifunk.net
+
+  - site: vault.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv02.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv02.kbu.freifunk.net/privkey.pem
+    locations:
+      - path: /
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:8280/"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+
+    # derived from: https://community.ui.com/questions/Up-to-date-NGINX-config-for-reverse-proxying-Unifi-Controller/ee3980b1-161f-4469-9e39-26f680542357
+  - site: unifi.kbu.freifunk.net
+    aliases:
+      - "unifi.{{ ffkbu_domain_int }}"
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv02.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv02.kbu.freifunk.net/privkey.pem
+    redirect_url: "https://$http_host:8443"
+
+  - site: uisp.kbu.freifunk.net
+    port: 443
+    ssl: true
+    ssl_cert: /etc/letsencrypt/live/sv02.kbu.freifunk.net/fullchain.pem
+    ssl_key: /etc/letsencrypt/live/sv02.kbu.freifunk.net/privkey.pem
+    redirect_url: "https://$http_host:9443"

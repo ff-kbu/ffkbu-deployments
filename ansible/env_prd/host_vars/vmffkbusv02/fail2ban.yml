@@ -1,0 +1,13 @@
+fail2ban_services:
+  - name: sshd
+  - name: nginx-http-auth
+  - name: unifi
+
+fail2ban_custom_filters:
+  - unifi.conf
+
+fail2ban_custom_jails:
+  - unifi.conf
+
+
+fail2ban_unifi_logfile: /opt/unifi/log/server.log

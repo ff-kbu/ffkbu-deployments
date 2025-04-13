@@ -1,0 +1,20 @@
+prometheus_web_listen_address: "127.0.0.1:9090"
+prometheus_web_external_url: "https://{{ ansible_fqdn }}/prometheus"
+prometheus_config_flags_extra:
+  web.route-prefix: "/prometheus"
+
+prometheus_alertmanager_config:
+  - scheme: http
+    path_prefix: /alertmanager
+    static_configs:
+      - targets: ["localhost:9093"]
+
+prometheus_storage_retention_size: "1GB"
+prometheus_storage_retention: "30d"
+
+prometheus_global:
+  scrape_interval: 120s
+  scrape_timeout: 15s
+  evaluation_interval: 240s
+
+prometheus_config_dir: /opt/prometheus

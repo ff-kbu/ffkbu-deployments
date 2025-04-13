@@ -1,0 +1,30 @@
+zone_ffkbu:
+  - name: "{{ ffkbu_domain_int }}"
+    type: master
+    default_ttl: 600
+    serial: 2023101313
+    refresh: 1D
+    retry: 2H
+    expire: 1000H
+    primary: "ns1.{{ ffkbu_domain_int }}"
+    admin: !vault |
+      $ANSIBLE_VAULT;1.2;AES256;ffkbu
+      62353864373730313433666566363134646439326136653163363137373038663239343836373665
+      3165623837363764396665666665303762383362353336310a653038383663323034323538386563
+      35636466616130613966613565633862616365613137313437613566303965366136623433333664
+      6166656462633438310a393631323839633462663833666164356635653761633830323331653332
+      62346534336335363164666238313539343233373066313631356433353833663237
+    ns_records:
+      - "ns1.{{ ffkbu_domain_int }}"
+      - "ns2.{{ ffkbu_domain_int }}"
+    # RR values are either relative to the zone, either with a final dot when outside.
+    rrs:
+      - {label: ns1,          ttl: 3600, type: A,     rdata: '{{ ffkbu_ip_sv_vmffkbusv01 }}' }
+      - {label: ns2,          ttl: 3600, type: A,     rdata: '{{ ffkbu_ip_sv_vmffkbusv02 }}' }
+      - {label: vmffkbusv01,  ttl: 3600, type: A,     rdata: '{{ ffkbu_ip_sv_vmffkbusv01 }}'}
+      - {label: vmffkbusv02,  ttl: 3600, type: A,     rdata: '{{ ffkbu_ip_sv_vmffkbusv02 }}'}
+      - {label: vmffkbuen01,  ttl: 3600, type: A,     rdata: '{{ ffkbu_ip_en_vmffkbuen01 }}'}
+      - {label: vmffkbuen02,  ttl: 3600, type: A,     rdata: '{{ ffkbu_ip_en_vmffkbuen02 }}'}
+      - {label: unifi,        ttl: 3600, type: CNAME, rdata: vmffkbusv02}
+      - {label: uisp,         ttl: 3600, type: A,     rdata: '23.88.124.22'}
+      - {label: prometheus,   ttl: 3600, type: CNAME, rdata: vmffkbusv01}

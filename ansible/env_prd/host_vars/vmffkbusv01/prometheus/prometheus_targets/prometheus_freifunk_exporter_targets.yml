@@ -1,0 +1,41 @@
+prometheus_freifunk_exporter_targets:
+  - targets:
+      - vmffkbusv01.ffkbu.lan:19252
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd
+      hood: ffkbub-V2
+      __scrape_interval__: "15m"
+      __scrape_timeout__: "60s"
+  - targets:
+      - vmffkbusv01.ffkbu.lan:19253
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd
+      hood: ffkbuu-V2
+      __scrape_interval__: "15m"
+      __scrape_timeout__: "60s"
+  - targets:
+      - vmffkbusv01.ffkbu.lan:19254
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd
+      hood: ffkbuk
+      __scrape_interval__: "15m"
+      __scrape_timeout__: "60s"
+  - targets:
+      - vmffkbusv01.ffkbu.lan:19255
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd
+      hood: ffkbuu
+      __scrape_interval__: "15m"
+      __scrape_timeout__: "60s"
+  - targets:
+      - vmffkbusv01.ffkbu.lan:19256
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd
+      hood: ffeu
+      __scrape_interval__: "15m"
+      __scrape_timeout__: "60s"

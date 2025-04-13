@@ -1,0 +1,9 @@
+prometheus_node_exporter_targets:
+  - targets:
+      - vmffkbusv01.ffkbu.lan:9100
+      - vmffkbusv02.ffkbu.lan:9100
+      - vmffkbuen01.ffkbu.lan:9100
+      - vmffkbuen02.ffkbu.lan:9100
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd

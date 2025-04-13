@@ -1,0 +1,30 @@
+---
+- name: update_grub
+  ansible.builtin.command: update-grub
+
+- name: reconfigure_exim
+  ansible.builtin.shell:
+    cmd: "dpkg-reconfigure -fnoninteractive exim4-config"
+  tags:
+    - skip_ansible_lint
+
+- name: reconfigure_ulimit
+  ansible.builtin.shell: "ulimit -c unlimited"
+  tags:
+    - skip_ansible_lint
+
+- name: reexec_systemd
+  ansible.builtin.shell: "systemctl daemon-reexec"
+  tags:
+    - skip_ansible_lint
+
+- name: iptables_save
+  ansible.builtin.include_tasks: tasks/iptables_save.yml
+
+- name: restart_network
+  ansible.builtin.systemd:
+    name: networking
+    state: restarted
+
+- name: dpkg-reconfigure keyboard-configuration
+  ansible.builtin.command: /usr/sbin/dpkg-reconfigure -f noninteractive keyboard-configuration

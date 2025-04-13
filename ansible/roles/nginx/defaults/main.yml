@@ -1,0 +1,49 @@
+---
+# defaults file for nginx
+nginx_sites: []
+  # - site: www.myhost.de
+  #   aliases:
+  #     - myhost.de
+  #     - myhost.com
+  #   port: 80
+  #   redirect_url: https://myhost.de/webagent
+  #   root: /path/to/rootfolder
+  #   nginx_disable_cache_tweaks: true
+  #   locations:
+  #     - path: /
+  #       # destination: /var/www/html/folder1
+  #       # proxy_pass: myhost.com # mandatory if proxy_config = true
+  #     - path: /anotherpath
+  #       # destination: /var/www/html/folder2
+  #   ssl: true
+  #   ssl_cert: /path/to/cert.crt
+  #   ssl_key: /path/to/cert.key
+  #   ssl_cert_with_ca: /path/to/cert_with_ca.crt
+  #   auth:
+  #     - user: myuser
+  #       password: mypass
+  #
+  #   conditions:
+  #     - condition: $arg_targetURL
+  #       actions:
+  #         - return 200 'Target found: $arg_targetURL'
+  #         - add_header Content-Type text/plain
+
+nginx_ssl_certificates: []
+#    - content: '{{ ssl_certificate }}'
+#      dest: /path/to/my/cert.pem
+#      mode: '0644'
+#      owner: username (default: root)
+#      group: groupname (default: root)
+#    - content: '{{ ssl_private_key }}'
+#      dest: /path/to/my/key.pem
+#      mode: '0600'
+
+nginx_disable_cache_tweaks: false
+nginx_log_path: /var/log/nginx
+nginx_auth_path: /etc/nginx/ansible.auth.d
+nginx_syslog_server: ""
+
+nginx_use_access_log: true
+nginx_use_ipv6: true
+nginx_resolver_ip: 127.0.0.1

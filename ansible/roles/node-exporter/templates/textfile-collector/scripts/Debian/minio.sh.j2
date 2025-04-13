@@ -1,0 +1,15 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+#!/bin/bash
+# {{ ansible_managed }}
+#
+# Description: Expose running minio docker container status
+if command -v docker &>/dev/null; then
+  containerList="$(docker ps -f label=name=MinIO --format 'minio_up 1')"
+  echo '# HELP minio_up shows minio container status.'
+  echo '# TYPE minio_up gauge'
+  if [[ -n "${containerList}" ]] ; then
+    echo "${containerList}"
+  else
+    echo 'minio_up 0'
+  fi
+fi

@@ -1,0 +1,11 @@
+---
+- name: Ensure monit configs are present
+  ansible.builtin.copy:
+    src: "monit/conf.d/{{ item }}"
+    dest: "/etc/monit/conf.d/{{ item }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop:
+    - bind9
+  notify: Restart monit

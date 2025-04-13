@@ -1,0 +1,145 @@
+bird_protocols:
+  - protocol: device
+    description: Get information about network interfaces
+
+  - protocol: direct
+    description: Create device routes for all network interfaces
+    ipv4: true
+    ipv6: true
+
+  - protocol: kernel
+    table: main4
+    description: Import all ipv4 routes from the kernel
+    learn: true
+    ipv4:
+      - import all
+
+  - protocol: kernel
+    table: main6
+    description: Import all ipv6 routes from the kernel
+    learn: true
+    ipv6:
+      - import all
+
+  - protocol: static
+    description: Do not route our own public ffrl ipv4 adresses
+    ipv4:
+      - table ffkbu_table_4
+    routes:
+      - network: "{{ ffrl_public_network_ipv4 }}"
+        nexthop: blackhole
+
+  - protocol: static
+    description: Do not route our own public ffrl ipv6 adresses
+    ipv6:
+      - table ffkbu_table_6
+    routes:
+      - network: 2a03:2260:101a::/48
+        nexthop: blackhole
+
+  - protocol: static
+    description: Add static routes to prevent GRE tunnel recursion
+    ipv4: true
+    routes:
+      - network: 0.0.0.0/0
+        nexthop: "{{ hetzner_wan_gateway }}"
+        mode: via
+
+  - protocol: pipe
+    description: Add GRE ipv4 routings to bird routing table to find nexthop for BGP routes
+    table: master4
+    peer_table: ffkbu_table_4
+    filter:
+      type: export
+      acl:
+        - rule: "net ~ [{{ ffkbu_gre | map(attribute='local.ipv4') | first | ansible.utils.ipv4('network') | ansible.utils.ipsubnet(24,0) }}+]"
+          action: accept
+        - rule: "net ~ [{{ ffrl_public_network_ipv4 }}+]"
+          action: accept
+        - rule: "net ~ [10.0.0.0/8+]"
+          action: accept
+      default_action: reject
+
+  - protocol: pipe
+    description: Add GRE ipv6 routings to bird routing table to find nexthop for BGP routes
+    table: master6
+    peer_table: ffkbu_table_6
+    filter:
+      type: export
+      acl:
+        - rule: "net ~ [{{ ffkbu_gre | map(attribute='local.ipv6') | first | ansible.utils.ipv6('network') | ansible.utils.ipsubnet(16,0) }}+]"
+          action: accept
+        - rule: "net ~ [{{ ffrl_public_network_ipv6 | ansible.utils.ipv6('network') | ansible.utils.ipsubnet(32,0) }}+]"
+          action: accept
+      default_action: reject
+
+  - protocol: kernel
+    table: ffkbu4
+    description: Export all ipv4 routes to custom kernel tables
+    kernel_table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    ipv4:
+      - export all
+      - table ffkbu_table_4
+
+  - protocol: kernel
+    table: ffkbu6
+    description: Export all ipv6 routes to custom kernel tables
+    kernel_table: "{{ systemd_networkd_routing_tables | selectattr('name', 'eq', 'freifunk') | map(attribute='id') | first }}"
+    ipv6:
+      - export all
+      - table ffkbu_table_6
+
+  - protocol: ospf
+    name: ospf_ffkbu_servicenodes_v4
+    description: OSPF service nodes ipv4
+    ipv4:
+      - export all
+      - |
+        import filter {
+          if (net ~ [ {{ ffkbu_wg_local_prefix_mask_v4 | join(', ') }} ]) then {
+            accept;
+          }
+          if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v4 | join(', ') }} ]) then {
+            accept;
+          }
+          if (net ~ [ 10.1.0.0/24+, 10.3.0.0/24+, 10.4.0.0/24+ ]) then {
+            accept;
+          }
+          reject;
+        }
+    areas:
+      - id: 0.0.0.0
+        interfaces:
+          - name: gre_ffkbu_*
+            type: broadcast
+            options:
+              - ttl security tx only
+              - wait 10
+
+  - protocol: ospf
+    name: ospf_ffkbu_servicenodes_v6
+    description: OSPF service nodes ipv6
+    version: 3
+    ipv6:
+      - export all
+      - |
+        import filter {
+          if (net ~ [ {{ ffkbu_wg_local_prefix_mask_v6 | join(', ') }} ]) then {
+            accept;
+          }
+          if (net ~ [ {{ ffkbu_wg_remote_prefix_mask_v6 | join(', ') }} ]) then {
+            accept;
+          }
+          if (net ~ [ fdd3::/16+ ]) then {
+            accept;
+          }
+          reject;
+        }
+    areas:
+      - id: 0.0.0.0
+        interfaces:
+          - name: gre_ffkbu_*
+            type: broadcast
+            options:
+              - ttl security tx only
+              - wait 10

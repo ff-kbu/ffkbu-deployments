@@ -1,0 +1,7 @@
+---
+- hosts: hetzner,!not_full_ansible_managed
+  become: true
+  gather_facts: false
+  roles:
+    - role: hcloud
+      tags: hcloud

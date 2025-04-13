@@ -1,0 +1,19 @@
+# Overview exporter ports
+#
+# PORT | Exporter
+# ------------------------------
+# 8418 | acd-livestats-importer (Spring Actuator)
+# 8419 | acd-livestats-exporter (Spring Actuator)
+# 8488 | event-remotedb-exporter (Spring Actuator)
+# 9080 | acd-wbc-as-output (Spring Actuator)
+# 9081 | acd-wbc-as-input (Spring Actuator)
+# 9082 | acd-wbc-cs-input (Spring Actuator)
+# 9083 | acd-wbc-cc-input (Spring Actuator)
+# 9100 | node-exporter
+# 9104 | mysql-exporter
+# 9113 | nginx-exporter
+# 9187 | postgres-exporter
+# 9252 | gitlab-exporter
+
+prometheus_targets:
+  node: "{{ prometheus_bind9_exporter_targets + prometheus_node_exporter_targets + prometheus_freifunk_exporter_targets + prometheus_cadvisor_targets + prometheus_nginx_exporter_targets + prometheus_bird_exporter_targets }}"

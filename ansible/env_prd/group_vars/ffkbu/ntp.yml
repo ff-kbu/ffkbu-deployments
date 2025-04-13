@@ -1,0 +1,11 @@
+ntp_restrict:
+  - "127.0.0.1"
+  - "::1"
+  - 10.0.0.0 mask 255.0.0.0
+  - fe80::/10
+  - fe80::/10
+  - "{{ ffrl_public_network_ipv6 }}"
+
+ntp_tinker_panic: true
+
+ntp_config_file: /etc/ntpsec/ntp.conf

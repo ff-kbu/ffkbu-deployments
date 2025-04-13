@@ -1,0 +1,38 @@
+---
+- name: Preflight | Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Preflight | Assert that docker is installed
+  ansible.builtin.assert:
+    that: "'docker' in services"
+    msg: "This role requires docker"
+
+- name: Create Etherpad docker structure on server
+  ansible.builtin.file:
+    name: "{{ etherpad_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+## Install Etherpad docker
+- name: Clone Etherpad repository
+  ansible.builtin.git:
+    repo: "{{ etherpad_git_repo_url }}"
+    dest: "{{ etherpad_directory }}/repository"
+    update: true
+    force: true
+
+- name: Install Etherpad docker-compose
+  ansible.builtin.template:
+    src: etherpad.yaml.j2
+    dest: "{{ etherpad_directory }}/docker-compose.yaml"
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Start etherpad docker
+  community.docker.docker_compose_v2:
+    project_src: "{{ etherpad_directory }}"
+    build: always
+  when: not ansible_check_mode

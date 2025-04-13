@@ -1,0 +1,24 @@
+bind9_masters:
+  - name: "ns1.{{ ffkbu_domain_int }}"
+    addresses:
+      - "{{ ffkbu_ip_sv_vmffkbusv01 }}"
+
+bind9_listen_v4: "{{ ffkbu_ip_sv_vmffkbusv02 }};"
+
+bind9_local_dns: "{{ ffkbu_ip_sv_vmffkbusv02 }}"
+
+bind9_our_neighbors:
+  - "{{ ffkbu_ip_sv_vmffkbusv01 }}"
+
+
+bind9_zones_dynamic: >
+  {{ zone_ffkbu
+    | union (ptr_10_0_10) }}
+
+zone_ffkbu:
+  - name: "{{ ffkbu_domain_int }}"
+    type: slave
+
+ptr_10_0_10:
+  - name: "{{ ffkbu_net | ansible.utils.ipaddr('revdns') | split('.', 1) | last | regex_replace('\\.$','') }}"
+    type: slave

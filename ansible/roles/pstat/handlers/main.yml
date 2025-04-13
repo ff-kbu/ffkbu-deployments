@@ -1,0 +1,8 @@
+---
+# handlers file for pstat
+- name: restart_pstat
+  ansible.builtin.systemd:
+    name: pstat.service
+    daemon_reload: true
+    state: restarted
+    enabled: true

@@ -1,0 +1,51 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import socket
+import re
+
+class MyHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        try:
+            port_param = self.path.strip('/')
+
+            # Check if the port parameter contains only digits
+            if not re.match('^\d+$', port_param):
+                self.send_response(401)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(bytes('Invalid port parameter. Please provide a valid numeric port.', 'utf-8'))
+                return
+
+            port = int(port_param)
+
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = sock.connect_ex(('127.0.0.1', port))
+
+            if result == 0:
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(bytes('Up', 'utf-8'))
+            else:
+                self.send_response(500)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(bytes('Down', 'utf-8'))
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(bytes(f'Error: {str(e)}', 'utf-8'))
+
+if __name__ == '__main__':
+    server_address = ('{{ pstat_listen_host }}', {{ pstat_listen_port }})
+    httpd = HTTPServer(server_address, MyHandler)
+    print('Starting server on port {{ pstat_listen_port }}...')
+
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        # Handle keyboard interrupt to stop the server
+        print('Stopping server...')
+        httpd.server_close()

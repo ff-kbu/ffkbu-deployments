@@ -1,0 +1,15 @@
+---
+- name: ssh-keys | Deploy SSH-Keys to remote host for user 'root'
+  ansible.posix.authorized_key:
+    user: root
+    key: "{{ base_deploy_sshkeys_for_user_root|map(attribute='sshkey')|join('\n') }}"
+    exclusive: true # remove all other non-specified keys from the authorized_keys file.
+  when: base_deploy_sshkeys_for_user_root | default ([]) | length > 0
+  tags: ssh-keys
+
+- name: ssh-keys | Read user home directory
+  ansible.builtin.shell: ls /home
+  register: home_contents
+  tags:
+    - skip_ansible_lint
+    - ssh-keys

@@ -1,0 +1,9 @@
+jitsi_domain: meet.kbu.freifunk.net
+
+jitsi_http_port: "127.0.0.1:8000"
+jitsi_https_port: "127.0.0.1:8443"
+
+jitsi_etherpad_base: "http://etherpad:9001"
+jitsi_etherpad_public_url: https://pad.kbu.freifunk.net/p/
+jitsi_etherpad_title: Jitsi Meeting Protokoll
+jitsi_etherpad_text: ""

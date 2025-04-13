@@ -1,0 +1,16 @@
+---
+- name: "Create group {{ vaultwarden_linux_group_name }}"
+  ansible.builtin.group:
+    name: "{{ vaultwarden_linux_group_name }}"
+    state: present
+    gid: "{{ vaultwarden_linux_user_gid }}"
+
+- name: "Create user {{ vaultwarden_linux_user_name }}"
+  ansible.builtin.user:
+    name: "{{ vaultwarden_linux_user_name }}"
+    uid: "{{ vaultwarden_linux_user_uid }}"
+    group: "{{ vaultwarden_linux_group_name }}"
+    shell: /sbin/nologin
+    create_home: false
+    append: true
+    state: present

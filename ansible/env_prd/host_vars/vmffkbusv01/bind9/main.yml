@@ -1,0 +1,15 @@
+bind9_authoritative: true
+
+bind9_slaves:
+  - "{{ ffkbu_ip_sv_vmffkbusv02 }}"
+
+bind9_our_neighbors:
+  - "{{ ffkbu_ip_sv_vmffkbusv02 }}"
+
+bind9_zones_dynamic: >
+  {{ zone_ffkbu
+    | union (ptr_10_0_10) }}
+
+bind9_listen_v4: "{{ ffkbu_ip_sv_vmffkbusv01 }};"
+
+bind9_local_dns: "{{ ffkbu_ip_sv_vmffkbusv01 }}"

@@ -1,0 +1,151 @@
+base_iptables_rules:
+  - chain: INPUT
+    in_interface: "!eth0"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: OUTPUT
+    out_interface: "!eth0"
+    destination_port: 25
+    ctstate: NEW,ESTABLISHED
+    source: 0.0.0.0/0
+    protocol: tcp
+    jump: DROP
+    comment: "Ansible managed - block smtp pam"
+    ip_version: ipv4
+    rule_num: 1
+    action: insert
+    state: absent
+
+  - chain: OUTPUT
+    out_interface: "!eth0"
+    destination_port: 25
+    ctstate: NEW,ESTABLISHED
+    source: 0.0.0.0/0
+    protocol: tcp
+    jump: DROP
+    comment: "Ansible managed - block smtp pam"
+    ip_version: ipv6
+    rule_num: 1
+    action: insert
+    state: absent
+
+  - chain: OUTPUT
+    out_interface: "!eth0"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: INPUT
+    in_interface: "!eth0"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv6
+
+  - chain: OUTPUT
+    out_interface: "!eth0"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv6
+
+  - chain: INPUT
+    in_interface: eth0
+    destination: "{{ ansible_default_ipv4.address }},{{ eth0_floating_ipv4 }}"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: OUTPUT
+    out_interface: eth0
+    source: "{{ ansible_default_ipv4.address }},{{ eth0_floating_ipv4 }}"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: INPUT
+    in_interface: eth0
+    destination: "{{ ansible_default_ipv6.address }},{{ eth0_floating_ipv6 }}"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv6
+
+  - chain: OUTPUT
+    out_interface: eth0
+    source: "{{ ansible_default_ipv6.address }},{{ eth0_floating_ipv6 }}"
+    jump: ACCEPT
+    comment: "Ansible managed"
+    ip_version: ipv6
+
+  # source nat for client ips to ffrl wan ip (their final public ip-address)
+  # packet into larger prefixes to have less table rules
+  - chain: POSTROUTING
+    table: nat
+    src_range: 10.100.0.0-10.132.255.254
+    destination: "! 10.0.0.0/8"
+    jump: SNAT
+    to_source: "{{ lo_ffrl_public_ipv4 | ansible.utils.ipaddr('address') }}"
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: POSTROUTING
+    table: nat
+    src_range: 10.200.0.0-10.232.255.254
+    destination: "! 10.0.0.0/8"
+    jump: SNAT
+    to_source: "{{ lo_ffrl_public_ipv4 | ansible.utils.ipaddr('address') }}"
+    comment: "Ansible managed"
+    ip_version: ipv4
+
+  - chain: INPUT
+    policy: DROP
+    ip_version: ipv4
+
+  - chain: INPUT
+    policy: DROP
+    ip_version: ipv6
+
+  - chain: OUTPUT
+    policy: DROP
+    ip_version: ipv4
+
+  - chain: OUTPUT
+    policy: DROP
+    ip_version: ipv6
+
+  - chain: FORWARD
+    policy: ACCEPT
+    ip_version: ipv4
+
+  - chain: FORWARD
+    policy: ACCEPT
+    ip_version: ipv6
+
+# commented out because ansible module can't handle arguments after jump (yet)
+  # - chain: FORWARD
+  #   out_interface: "gre_ffrl_+"
+  #   protocol: tcp
+  #   match: tcp
+  #   tcp_flags:
+  #     flags:
+  #       - SYN
+  #       - RST
+  #     flags_set:
+  #       - SYN
+  #   jump: TCPMSS --clamp-mss-to-pmtu
+  #   ip_version: ipv4
+  #   action: insert
+
+  # - chain: FORWARD
+  #   out_interface: "gre_ffrl_+"
+  #   protocol: tcp
+  #   match: tcp
+  #   tcp_flags:
+  #     flags:
+  #       - SYN
+  #       - RST
+  #     flags_set:
+  #       - SYN
+  #   jump: TCPMSS --clamp-mss-to-pmtu
+  #   ip_version: ipv6
+  #   action: insert

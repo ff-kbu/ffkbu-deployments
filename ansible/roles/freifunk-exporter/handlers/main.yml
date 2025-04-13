@@ -1,0 +1,9 @@
+---
+# handlers file for freifunk-exporter
+- name: restart_freifunk_exporter
+  ansible.builtin.systemd:
+    name: "ff-exporter@{{ item.name | regex_replace(' ', '_') }}"
+    state: restarted
+  with_items: "{{ freifunk_exporter_data_sources }}"
+  loop_control:
+    label: "{{ item.name | regex_replace(' ', '_') }}"

@@ -1,0 +1,31 @@
+---
+- name: "Gather infos"
+  community.docker.docker_container_info:
+    name: "{{ vaultwarden_container_name }}"
+  register: result
+
+- name: "Current {{ vaultwarden_container_name }} status"
+  ansible.builtin.debug:
+    msg: "The container {{ 'exists' if result.exists else 'does not exist' }}"
+
+- name: "Remove container"
+  community.docker.docker_container:
+    name: "{{ vaultwarden_container_name }}"
+    state: absent
+  when: result.exists
+
+- name: "Backup data"
+  community.general.archive:
+    path: "{{ vaultwarden_install_path }}"
+    dest: "/opt/{{ vaultwarden_container_name }}-backup.tgz"
+    remove: true
+
+- name: Remove user "vaultwarden"
+  ansible.builtin.user:
+    name: vaultwarden
+    state: absent
+
+- name: Remove group "vaultwarden"
+  ansible.builtin.group:
+    name: vaultwarden
+    state: absent

@@ -1,0 +1,13 @@
+---
+- hosts: unifi_network_server
+  become: true
+
+  roles:
+    - role: java
+      tags: java
+
+    - role: docker
+      tags: docker
+
+    - role: unms
+      tags: unms

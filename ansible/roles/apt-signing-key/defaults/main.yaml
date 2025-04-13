@@ -1,0 +1,11 @@
+---
+# (required) GPG key URL.
+key_url: "{{ undef(hint='You must specify GPG key URL') }}"
+# (required) GPG key target name.
+key_name: "{{ undef(hint='You must specify GPG key target name') }}"
+# Location of archive keyrings.
+key_path: /usr/share/keyrings
+# GPG key ID/fingerprint.
+key_id: null
+# Should the key from the URL be dearmored before saving.
+dearmor: false

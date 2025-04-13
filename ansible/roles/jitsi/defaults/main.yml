@@ -1,0 +1,25 @@
+---
+# defaults file for jitsi
+jitsi_version: stable-8960-1
+jitsi_domain: meet.my.domain
+
+jitsi_http_port: 8000
+jitsi_https_port: 8443
+jitsi_timezone: CET
+
+jitsi_jvb_advertise_ips: []
+
+jitsi_letsencrypt_active: "0"
+jitsi_letsencrypt_domain: ""
+jitsi_letsencrypt_email: ""
+
+jitsi_etherpad_base: ""
+jitsi_etherpad_public_url: https://etherpad.my.domain/p/
+jitsi_etherpad_title: Video Chat
+jitsi_etherpad_text: "Welcome to Web Chat!\n\n"
+jitsi_etherpad_skin_name: colobris
+jitsi_etherpad_skin_variants:
+  - super-light-toolbar
+  - super-light-editor
+  - light-background
+  - full-width-editor

@@ -1,0 +1,9 @@
+prometheus_nginx_exporter_targets:
+  - targets:
+      - vmffkbusv01.ffkbu.lan:9322
+      - vmffkbusv02.ffkbu.lan:9322
+      - vmffkbuen01.ffkbu.lan:9322
+      - vmffkbuen02.ffkbu.lan:9322
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd

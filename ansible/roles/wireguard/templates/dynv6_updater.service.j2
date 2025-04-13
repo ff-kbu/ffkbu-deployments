@@ -1,0 +1,15 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+[Unit]
+Description=Dynv6 Updater
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart={{ wireguard_dynv6_base_path }}/dynv6_updater.sh
+EnvironmentFile={{ wireguard_dynv6_base_path }}/.dynv6_token
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

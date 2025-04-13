@@ -1,0 +1,78 @@
+---
+# see: https://github.com/jacobalberty/unifi-docker
+- name: Create data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - "{{ unifi_base_directory }}/cert"
+    - "{{ unifi_base_directory }}/data"
+    - "{{ unifi_base_directory }}/log"
+
+- ansible.builtin.set_fact:
+    unifi_volumes:
+      - "{{ unifi_base_directory }}:/unifi"
+      - "{{ unifi_base_directory }}/cert:/unifi/cert"
+  when: unifi_ssl_letsencrypt_enabled
+
+- ansible.builtin.set_fact:
+    unifi_volumes:
+      - "{{ unifi_base_directory }}:/unifi"
+  when: not unifi_ssl_letsencrypt_enabled
+
+- name: Copy ssl certificate files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ unifi_base_directory }}/cert/{{ item | basename }}"
+    mode: "0640"
+    follow: true
+    remote_src: true
+  loop:
+    - "{{ unifi_ssl_letsencrypt_live_folder }}/cert.pem"
+    - "{{ unifi_ssl_letsencrypt_live_folder }}/chain.pem"
+    - "{{ unifi_ssl_letsencrypt_live_folder }}/privkey.pem"
+  when: unifi_ssl_letsencrypt_enabled
+
+- name: Install unifi docker container
+  community.docker.docker_container:
+    name: unifi
+    image: jacobalberty/unifi
+    state: started
+    networks:
+      - name: host
+    restart_policy: unless-stopped
+    user: root
+    ports:
+      - "{{ unifi_http_bind_address }}:8080:8080"
+      - "{{ unifi_https_bind_address }}:8443:8443"
+      - "{{ unifi_speedtest_bind_address }}:6789:6789"
+      - "{{ unifi_stun_bind_address }}:3478:3478/udp"
+      - "{{ unifi_stun_bind_address }}:10001:10001/udp"
+    env:
+      TZ: "Germany/Berlin"
+    volumes: "{{ unifi_volumes }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "{{ unifi_watchtower_active | lower }}"
+
+- name: Install | Enable TLS 1.3
+  ansible.builtin.lineinfile:
+    path: "{{ unifi_base_directory }}/data/system.properties"
+    regexp: "^(# )?{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  loop:
+    - {key: 'unifi.https.ciphers', value: 'TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256'}
+    - {key: 'unifi.https.hsts', value: 'true'}
+    - {key: 'unifi.https.hsts.max_age', value: '63072000'}
+    - {key: 'unifi.https.sslEnabledProtocols', value: 'TLSv1.3'}
+  loop_control:
+    label: "{{ item.key }}"
+  when: unifi_ssl_letsencrypt_enabled
+  notify: restart_unifi_docker
+
+- name: Deploy renewal restart script
+  ansible.builtin.template:
+    src: unifi.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/post/unifi.sh
+    mode: "0750"
+  when: unifi_ssl_letsencrypt_enabled

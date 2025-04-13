@@ -1,0 +1,97 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+#!/bin/bash
+# {{ ansible_managed }}
+
+DYNV6_BASE_DOMAIN="{{ wireguard_dynv6_domain }}"
+DYNV6_API_DNS_URL="{{ wireguard_dynv6_dns_api_url }}"
+DYNV6_API_ZONE_URL="{{ wireguard_dynv6_zone_api_url }}"
+UPDATE_INTERVAL_SEC={{ wireguard_dynv6_updater_interval_seconds }}
+WIREGUARD_INTERFACE_PREFIX="{{ wireguard_dynv6_wireguard_interface_prefix }}"
+WIREGUARD_DOMAIN_SUFFIX="{{ wireguard_dynv6_domain_suffix }}"
+
+check_installed() {
+  local bin="$1"
+  if ! command -v "$bin" &>/dev/null; then
+    echo "$bin is not installed. Please install $bin to run this script."
+    exit 1
+  fi
+}
+
+test_api_token() {
+  local api_url="$1"
+  local api_token="$2"
+
+  if curl -s -o /dev/null -I -w "%{http_code}" -H "Authorization: Bearer $api_token" -H "Accept: application/json" "$api_url" | grep -qE '^(404|2\d\d)$'; then
+    return 0
+  else
+    echo "API Token is invalid or the API URL is unreachable: $api_url"
+    return 1
+  fi
+}
+
+check_variable() {
+  local var_name="$1"
+  local var_value="${!var_name}"
+
+  if [ -z "$var_value" ]; then
+    echo "Error: Variable $var_name is not set or is empty."
+    exit 1
+  fi
+}
+{% raw %}
+compare_and_update() {
+  current_zones=$(curl -s -H "Authorization: Bearer $DYNV6_API_TOKEN" -H "Accept: application/json" "$DYNV6_API_ZONE_URL")
+  # shellcheck disable=SC2207
+  current_peers=($(wg show all dump | awk '$3 == "(none)" && $4 != "(none)" {split($4, a, ":"); print $1 "," a[1]}'))
+
+  if [ ${#current_peers[@]} -eq 0 ]; then
+    echo "No peer interfaces found!"
+  else
+    for current_peer in "${current_peers[@]}"; do
+      current_peer_name="${current_peer%%,*}"
+      current_peer_ip="${current_peer#*,}"
+      # shellcheck disable=SC2295
+      current_peer_short_name="${current_peer_name#$WIREGUARD_INTERFACE_PREFIX}"
+      current_peer_fqdn="$current_peer_short_name${WIREGUARD_DOMAIN_SUFFIX}.${DYNV6_BASE_DOMAIN}"
+
+      echo -n "Checking peer: $current_peer_name > "
+
+      if ! echo "$current_zones" | jq --exit-status ".[] | select(.name == \"$current_peer_fqdn\")" &>/dev/null; then
+        echo "Creating $current_peer_fqdn with IP $current_peer_ip"
+        curl \
+          -s \
+          -m 10 \
+          -X POST \
+          -H "Authorization: Bearer $DYNV6_API_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "{\"name\": \"$current_peer_fqdn\", \"ipv4address\": \"$current_peer_ip\"}" \
+          "$DYNV6_API_ZONE_URL" >/dev/null
+      elif ! echo "$current_zones" | jq --exit-status ".[] | select(.ipv4address == \"$current_peer_ip\" and .name == \"$current_peer_fqdn\")" &>/dev/null; then
+        echo "Updating with IP $current_peer_ip"
+        curl \
+          -s \
+          -m 10 \
+          -k \
+          -s \
+          -X POST "${DYNV6_API_DNS_URL}?hostname=${current_peer_fqdn}&token=${DYNV6_API_TOKEN}&ipv4=${current_peer_ip}" &>/dev/null
+      else
+        echo "OK"
+      fi
+    done
+  fi
+}
+{% endraw %}
+
+check_installed jq
+check_installed curl
+check_installed wg
+
+while true; do
+  if ! test_api_token "$DYNV6_API_ZONE_URL" "$DYNV6_API_TOKEN"; then
+    sleep "$UPDATE_INTERVAL_SEC"
+    continue
+  fi
+
+  compare_and_update
+  sleep "$UPDATE_INTERVAL_SEC"
+done

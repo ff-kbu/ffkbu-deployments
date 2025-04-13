@@ -1,0 +1,9 @@
+lo_ffrl_public_ipv4: 185.66.194.35/32
+lo_ffrl_public_ipv6: 2a03:2260:101a::2/128
+
+eth0_floating_ipv4: 116.202.4.116/32
+eth0_floating_ipv6: 2a01:4f8:1c17:a040::1/128
+
+eth0_public_ipv6: 2a01:4f8:c17:ce0::1/128
+
+eth1_internal_ip: 10.0.1.2/32

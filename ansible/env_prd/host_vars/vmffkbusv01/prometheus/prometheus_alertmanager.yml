@@ -1,0 +1,45 @@
+alertmanager_config_dir: /opt/alertmanager
+alertmanager_db_dir: /opt/alertmanager/db
+
+alertmanager_web_listen_address: "localhost:9093"
+alertmanager_web_external_url: "https://grafana.kbu.freifunk.net/alertmanager"
+
+alertmanager_smtp:
+  auth_username: "{{ smtp_user }}"
+  auth_password: "{{ smtp_password }}"
+  from: "{{ smtp_email }}"
+  require_tls: "False"
+  smarthost: "{{ smtp_host }}:{{ smtp_port }}"
+
+alertmanager_receivers:
+  - name: 'default-receiver'
+    email_configs:
+      - to: "contact@databunker.eu"
+        send_resolved: true
+
+  # - name: 'twinter'
+  #   email_configs:
+  #     - to: johnny.bee@gmx.de
+  #       send_resolved: true
+
+# see https://prometheus.io/docs/alerting/configuration/#email_config
+alertmanager_route:
+  receiver: 'default-receiver'
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1d
+  group_by: ['alertname', 'cluster', 'service']
+
+  routes:
+    - match:
+        env: prd
+      receiver: 'default-receiver'
+      continue: true  # Important to send alert notifications to multiple destinations!
+    # - match:
+    #     job: ff_supernode
+    #   receiver: 'twinter'
+    #   continue: true  # Important to send alert notifications to multiple destinations!
+    # - match:
+    #     job: ff_relay
+    #   receiver: 'twinter'
+    #   continue: true  # Important to send alert notifications to multiple destinations!

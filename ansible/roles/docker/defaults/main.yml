@@ -1,0 +1,49 @@
+---
+# Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
+docker_edition: 'ce'
+docker_package: "docker-{{ docker_edition }}"
+docker_package_state: present
+
+# Service options.
+docker_service_state: started
+docker_service_enabled: true
+docker_restart_handler_state: restarted
+
+# Remove all unused containers, networks, images (both dangling and unreferenced), and optionally, volumes.
+docker_system_prune: false
+
+# Docker Compose options.
+docker_install_compose: true
+docker_compose_version: "2.32.4"
+docker_compose_path: /usr/local/bin/docker-compose
+
+# Used only for Debian/Ubuntu.
+docker_apt_release_channel: stable
+docker_apt_arch: amd64
+docker_apt_repository: "deb [arch={{ docker_apt_arch }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
+docker_apt_ignore_key_error: true
+docker_apt_gpg_key: https://download.docker.com/linux/debian/gpg
+
+# A list of users who will be added to the docker group.
+docker_users: []
+
+docker_registry_mirror: ""
+docker_registries: []
+  # - name: my.private.registry.net
+  #   username: foo
+  #   password: bar
+
+docker_data_root_path: /opt/docker
+
+docker_networks: []
+  # - mynetwork
+
+docker_cadvisor_active: false
+docker_cadvisor_version: 0.47.2
+docker_cadvisor_port: 9321
+
+docker_watchtower_active: false
+docker_watchtower_update_only_labeld_container: true
+docker_watchtower_cleanup_old_images: true
+docker_watchtower_run_only_once: false
+docker_watchtower_schedule: "0 0 5 * * 2-4" # Daily 5am Tue - Thu
