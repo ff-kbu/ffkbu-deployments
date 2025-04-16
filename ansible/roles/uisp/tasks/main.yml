@@ -42,3 +42,9 @@
   environment:
     UNMS_HOME_DIR: "{{ uisp_home_dir }}"
     UNMS_USER: "{{ uisp_user }}"
+
+- name: Add reboot fix
+  ansible.builtin.cron:
+    name: UISP Bootfix
+    job: "/bin/bash -c 'sleep 60 && {{ uisp_home_dir }}/app/unms-cli stop; {{ uisp_home_dir }}/app/unms-cli start'"
+    special_time: reboot
