@@ -247,33 +247,7 @@ nginx_sites:
     ssl: true
     ssl_cert: /etc/letsencrypt/live/sv01.kbu.freifunk.net/fullchain.pem
     ssl_key: /etc/letsencrypt/live/sv01.kbu.freifunk.net/privkey.pem
-    locations:
-      - path: /
-        extravars:
-          - name: proxy_pass
-            value: "http://localhost:8999/"
-          - name: proxy_set_header
-            value: Host $http_host
-          - name: proxy_set_header
-            value: X-Forwarded-For $proxy_add_x_forwarded_for
-          - name: proxy_buffering
-            value: "off"
-          - name: proxy_http_version
-            value: 1.1
-          - name: proxy_set_header
-            value: Upgrade $http_upgrade
-          - name: proxy_set_header
-            value: Connection "upgrade"
-          - name: add_header
-            value: Referrer-Policy no-referrer
-          - name: add_header
-            value: X-Frame-Options "SAMEORIGIN"
-          - name: add_header
-            value: X-XSS-Protection "1; mode=block"
-          - name: add_header
-            value: X-Content-Type-Options nosniff
-          - name: add_header
-            value: Permissions-Policy "none"
+    redirect_url: https://stats.uptimerobot.com/LWqgbc7ZeD
 
   - site: inventory.kbu.freifunk.net
     port: 443
