@@ -8,11 +8,11 @@
     - role: bird
       tags: bird
 
+    - role: wireguard
+      tags: wireguard
+
     - role: prometheus-bird-exporter
       tags: prometheus-bird-exporter
-
-    - role: pstat
-      tags: pstat
 
     - role: nginx
       tags: nginx

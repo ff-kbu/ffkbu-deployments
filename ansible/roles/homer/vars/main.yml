@@ -1,4 +1,0 @@
----
-# vars file for homer
-homer_labels:
-  com.centurylinklabs.watchtower.enable: "{{ homer_watchtower_active | lower }}"
