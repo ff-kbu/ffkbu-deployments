@@ -1,6 +1,0 @@
----
-# defaults file for pstat
-pstat_directory: /opt/pstat
-
-pstat_listen_host: 127.0.0.1
-pstat_listen_port: 8881

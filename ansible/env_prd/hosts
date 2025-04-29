@@ -39,10 +39,6 @@ all:
                   hosts:
                     vmffkbusv01:
                       ansible_host: sv01.kbu.freifunk.net
-                homer:
-                  hosts:
-                    vmffkbusv01:
-                      ansible_host: sv01.kbu.freifunk.net
                 vaultwarden:
                   hosts:
                     vmffkbusv02:
