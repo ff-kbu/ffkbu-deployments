@@ -222,3 +222,17 @@ bird_protocols_ibgp:
       - hold time 60
     ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
     ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
+
+  - protocol: bgp
+    name: ffger
+    description: iBGP ffrast
+    neighbor:
+      ip: "10.114.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}"
+      as: "{{ ffrl_as_local }}"
+    local:
+      ip: 10.114.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}
+      as: "{{ ffrl_as_local }}"
+    options:
+      - hold time 60
+    ipv4: "{{ bird_ibgp_default_filter_ipv4 }}"
+    ipv6: "{{ bird_ibgp_default_filter_ipv6 }}"
