@@ -10,13 +10,15 @@ on:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       ansible: ${{ steps.filter.outputs.ansible }}
       shell: ${{ steps.filter.outputs.shell }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0   # fetch full history so origin/<branch> exists
 
       - name: Filter changed files
         id: filter
@@ -33,20 +35,27 @@ jobs:
   verify_ansible:
     needs: changes
     if: needs.changes.outputs.ansible == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v4
 
       - name: Install Ansible and Ansible Lint
         run: |
-          pip install ansible ansible-lint
+          python -m pip install --upgrade pip pipx
+          pipx install ansible
+          pipx install ansible-lint
           ansible --version
           ansible-lint --version
 
       - name: Run verify scripts
         run: |
+          BASE_BRANCH=${{ github.base_ref }}
+          echo "Comparing against origin/$BASE_BRANCH"
+          git fetch origin $BASE_BRANCH
           cat verify_lint.sh | /bin/sh || true
           cat verify_pb.sh | /bin/sh || true
           cat verify_j2.sh | /bin/sh || true
@@ -54,9 +63,11 @@ jobs:
   shellcheck:
     needs: changes
     if: needs.changes.outputs.shell == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
