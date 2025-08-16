@@ -45,20 +45,22 @@ jobs:
 
       - name: Install Ansible and Ansible Lint
         run: |
-          python -m pip install --upgrade pip pipx
-          pipx install ansible
-          pipx install ansible-lint
-          ansible --version
-          ansible-lint --version
-
-      - name: Run verify scripts
-        run: |
           BASE_BRANCH=${{ github.base_ref }}
           echo "Comparing against origin/$BASE_BRANCH"
           git fetch origin $BASE_BRANCH
-          cat verify_lint.sh | /bin/sh || true
-          cat verify_pb.sh | /bin/sh || true
-          cat verify_j2.sh | /bin/sh || true
+
+          docker run --rm \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace \
+          ghcr.io/ansible/community-ansible-dev-tools:latest \
+          bash -c "
+            git config --global --add safe.directory /workspace &&
+            ansible --version &&
+            ansible-lint --version &&
+            cat verify_lint.sh | bash || true &&
+            cat verify_pb.sh | bash || true &&
+            cat verify_j2.sh | bash || true
+          "
 
   shellcheck:
     needs: changes
