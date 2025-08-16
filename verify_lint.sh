@@ -11,9 +11,14 @@
 set -e
 
 LAST_COMMITID=$(git log -1 --pretty="%H")
-HEAD=$(git rev-parse --short "$(git merge-base origin/master "$LAST_COMMITID")")
-FILES=$(git diff --name-only -r "$HEAD" "$LAST_COMMITID")
+
+BASE_BRANCH="${GITHUB_BASE_REF:-master}"
+git fetch origin "$BASE_BRANCH"
+HEAD=$(git rev-parse --short "$(git merge-base origin/$BASE_BRANCH "$LAST_COMMITID")")
+FILES=$(git diff --name-only "$HEAD" "$LAST_COMMITID")
+
 EXCLUDES="terraform vagrant .tf$ .sh$ .gitlab-ci.yml$ extras deploy"
+
 YELLOW='\033[33m'  # Yellow color code
 GREEN='\033[32m'   # Green color code
 RED='\033[31m'     # Red color code
