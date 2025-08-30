@@ -28,8 +28,8 @@ You can customize the behavior of the `base` role by modifying the following var
 ### APT Repositories
 
 - `base_apt_mirrors_bookworm`: APT mirror configuration for Debian bookworm release.
-- `base_apt_mirrors_bullseye`: APT mirror configuration for Debian bullseye release.
-- `base_apt_mirrors_buster`: APT mirror configuration for Debian bullseye release.
+- `base_apt_mirrors_trixie`: APT mirror configuration for Debian trixie release.
+
 
 ### SSH Key Deployment
 

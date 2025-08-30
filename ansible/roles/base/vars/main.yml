@@ -8,12 +8,15 @@ base_apt_mirrors_bookworm: |
   deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }}-backports contrib main non-free-firmware
   deb http://deb.debian.org/debian-security {{ ansible_distribution_release | lower }}-security contrib main non-free-firmware
 
-base_apt_mirrors_bullseye: |
-  deb http://deb.debian.org/debian/ {{ ansible_distribution_release | lower }} main contrib non-free
-  deb http://deb.debian.org/debian/ {{ ansible_distribution_release | lower }}-updates main contrib non-free
-  deb http://security.debian.org/ {{ ansible_distribution_release | lower }}-security main contrib non-free
+base_apt_mirrors_trixie: |
+  Types: deb
+  URIs: https://deb.debian.org/debian
+  Suites: {{ ansible_distribution_release | lower }} {{ ansible_distribution_release | lower }}-updates
+  Components: main non-free-firmware
+  Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
 
-base_apt_mirrors_buster: |
-  deb http://deb.debian.org/debian/ {{ ansible_distribution_release | lower }} main contrib non-free
-  deb http://deb.debian.org/debian/ {{ ansible_distribution_release | lower }}-updates main contrib non-free
-  deb http://security.debian.org/ {{ ansible_distribution_release | lower }}/updates main contrib non-free
+  Types: deb
+  URIs: https://security.debian.org/debian-security
+  Suites: {{ ansible_distribution_release | lower }}-security
+  Components: main non-free-firmware
+  Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
