@@ -471,7 +471,7 @@ wireguard_interfaces:
     wireguard_clients_dir: /opt/wireguard/client_configs
     wireguard_endpoint: "{{ hcloud_dns_ptr }}"
     wireguard_clients:
-      - name: wg_ffrast
+      - name: wg_ffger
         address4: "10.114.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}/32"
         address6: "2a03:2260:101a:114::{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}/128"
         public_key: KBuoxKxWDtXBXGsAjzq0ZIwLuVuZ5oVs6heLTAiHdGY=
@@ -488,3 +488,37 @@ wireguard_interfaces:
           - 10.214.0.0/16
           - 2a03:2260:101a:114::/64
           - 2a03:2260:101a:214::/64
+
+  - interface: wg_ffhut
+    port: 19415
+    public_key: kbUkF3m3CT/1/mBn2WXEcJBexQ0n/4ExIeV28//MsAs=
+    private_key: !vault |
+      $ANSIBLE_VAULT;1.2;AES256;ffkbu
+      65613432613034643262636133666232303639616562323838636266616662646632356362336366
+      3336366133323234613830633635323064383032343839610a653332383431656166663762323963
+      33376362636434386134653663373365653861326533663364343035363732346633656264383834
+      6466396538633234310a636330396331383230643761323361313734326561613537316264663839
+      65303537383734323234663664353838323933306262666262313532383830616432336363393766
+      3731376538363066316635646239393232386137353232376265
+    address4: "10.115.0.{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}/32"
+    address6: "2a03:2260:101a:115::{{ groups['exitnode'].index(inventory_hostname) | int + 1 }}/128"
+    wireguard_clients_dir: /opt/wireguard/client_configs
+    wireguard_endpoint: "{{ hcloud_dns_ptr }}"
+    wireguard_clients:
+      - name: wg_ffhut
+        address4: "10.115.0.{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}/32"
+        address6: "2a03:2260:101a:115::{{ groups['exitnode'].index(inventory_hostname) | int + 11 }}/128"
+        public_key: KbuUFUEFpysqGkWHeKR2YIDh7JLQg9A0fzW7vy28d1o=
+        private_key: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;ffkbu
+          38623336653936343362373535626132323561643033373038613862623632366231643033626665
+          6163303935643864636133353536336366393331646239370a366439663763653438313537646130
+          37343437333739643338636531303335326436663664383532616134376238646331336435303233
+          3062343030323831640a333361663234373764393731316365653533363338363463376131366237
+          65656137666332333136623965323162383366393831343366363363663263363665636265333335
+          3633333933393162363835613961323565346166333364336434
+        allowed_ips:
+          - 10.115.0.0/24
+          - 10.215.0.0/16
+          - 2a03:2260:101a:115::/64
+          - 2a03:2260:101a:215::/64
