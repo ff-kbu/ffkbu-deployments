@@ -24,3 +24,6 @@
 
     - role: letsencrypt
       tags: letsencrypt
+
+    - role: certbot-exporter
+      tags: certbot-exporter

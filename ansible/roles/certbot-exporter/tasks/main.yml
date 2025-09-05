@@ -1,0 +1,35 @@
+---
+# tasks file for certbot-exporter
+- name: "Create group {{ certbot_exporter_group }}"
+  ansible.builtin.user:
+    name: "{{ certbot_exporter_group }}"
+
+- name: "Create user {{ certbot_exporter_user }}"
+  ansible.builtin.user:
+    name: "{{ certbot_exporter_user }}"
+    group: "{{ certbot_exporter_group }}"
+    home: "{{ certbot_exporter_base_folder }}"
+    shell: /bin/sh
+
+- name: "Create {{ certbot_exporter_base_folder }}"
+  ansible.builtin.file:
+    path: "{{ certbot_exporter_base_folder }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ certbot_exporter_user }}"
+    group: "{{ certbot_exporter_group }}"
+
+- name: "Download exporter version {{ certbot_exporter_version }}"
+  ansible.builtin.get_url:
+    url: "{{ certbot_exporter_download_url }}"
+    dest: "{{ certbot_exporter_base_folder }}"
+    owner: "{{ certbot_exporter_user }}"
+    group: "{{ certbot_exporter_group }}"
+    mode: "0750"
+  notify: restart_certbot_exporter
+
+- name: Install service
+  ansible.builtin.template:
+    src: certbot_exporter.service.j2
+    dest: /etc/systemd/system/certbot_exporter.service
+  notify: restart_certbot_exporter

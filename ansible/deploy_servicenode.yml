@@ -22,6 +22,9 @@
     - role: letsencrypt
       tags: letsencrypt
 
+    - role: certbot-exporter
+      tags: certbot-exporter
+
     - role: bind9
       tags: bind9
 
