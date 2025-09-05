@@ -1,0 +1,9 @@
+prometheus_cerbot_rules:
+  - alert: SSLCertExpiringSoon
+    expr: sum(ssl_certificate_expiry_seconds{}) by (instance, path) < 86400 * 10
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: '{% raw %}SSL certificate for {{ $labels.instance }} is expiring soon{% endraw %}'
+      description: '{% raw %}The SSL certificate at {{ $labels.path }} on {{ $labels.instance }} will expire in less than 10 days.{% endraw %}'

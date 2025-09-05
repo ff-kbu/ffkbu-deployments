@@ -1,1 +1,1 @@
-prometheus_alert_rules: "{{ prometheus_docker_rules + prometheus_dns_rules + prometheus_bgp_rules + prometheus_host_rules + prometheus_selfmonitoring_rules + prometheus_service_rules + prometheus_cadvisor_rules }}"
+prometheus_alert_rules: "{{ prometheus_cerbot_rules + prometheus_docker_rules + prometheus_dns_rules + prometheus_bgp_rules + prometheus_host_rules + prometheus_selfmonitoring_rules + prometheus_service_rules + prometheus_cadvisor_rules }}"
