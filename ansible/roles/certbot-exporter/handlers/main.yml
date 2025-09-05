@@ -1,0 +1,7 @@
+---
+# handlers file for certbot-exporter
+- name: restart_certbot_exporter
+  ansible.builtin.systemd:
+    name: certbot_exporter
+    daemon_reload: true
+    state: restarted

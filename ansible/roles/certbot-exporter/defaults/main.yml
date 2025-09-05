@@ -1,0 +1,8 @@
+---
+# defaults file for certbot-exporter
+certbot_exporter_version: 1.1.7
+certbot_exporter_base_folder: /opt/certbot-exporter
+certbot_exporter_user: certbot-exp
+certbot_exporter_group: www-data
+certbot_exporter_certificate_path: /etc/letsencrypt/live/
+certbot_exporter_listen_address: 0.0.0.0
