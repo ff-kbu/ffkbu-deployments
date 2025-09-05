@@ -1,0 +1,9 @@
+prometheus_certbot_exporter_targets:
+  - targets:
+      - vmffkbuen01.ffkbu.lan:9117
+      - vmffkbuen02.ffkbu.lan:9117
+      - vmffkbusv01.ffkbu.lan:9117
+      - vmffkbusv02.ffkbu.lan:9117
+    labels:
+      server: "{{ ansible_hostname }}"
+      env: prd

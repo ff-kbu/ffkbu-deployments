@@ -16,4 +16,4 @@
 # 9252 | gitlab-exporter
 
 prometheus_targets:
-  node: "{{ prometheus_bind9_exporter_targets + prometheus_node_exporter_targets + prometheus_freifunk_exporter_targets + prometheus_cadvisor_targets + prometheus_nginx_exporter_targets + prometheus_bird_exporter_targets }}"
+  node: "{{ prometheus_certbot_exporter_targets + prometheus_bind9_exporter_targets + prometheus_node_exporter_targets + prometheus_freifunk_exporter_targets + prometheus_cadvisor_targets + prometheus_nginx_exporter_targets + prometheus_bird_exporter_targets }}"
