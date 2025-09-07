@@ -5,3 +5,4 @@
     name: certbot_exporter
     daemon_reload: true
     state: restarted
+    enabled: true
