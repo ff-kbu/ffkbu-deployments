@@ -75,6 +75,29 @@ nginx_sites:
           - name: add_header
             value: Access-Control-Allow-Origin https://service.kbu.freifunk.net
 
+      - path: /inventory
+        extravars:
+          - name: proxy_pass
+            value: "http://localhost:5000/assets"
+          - name: proxy_set_header
+            value: Host $http_host
+          - name: proxy_set_header
+            value: X-Forwarded-For $proxy_add_x_forwarded_for
+          - name: proxy_buffering
+            value: "off"
+          - name: add_header
+            value: Referrer-Policy no-referrer
+          - name: add_header
+            value: X-Frame-Options "SAMEORIGIN"
+          - name: add_header
+            value: X-XSS-Protection "1; mode=block"
+          - name: add_header
+            value: X-Content-Type-Options nosniff
+          - name: add_header
+            value: Permissions-Policy "none"
+          - name: add_header
+            value: Access-Control-Allow-Origin https://inventory.kbu.freifunk.net
+
 
   - site: grafana.kbu.freifunk.net
     port: 443
