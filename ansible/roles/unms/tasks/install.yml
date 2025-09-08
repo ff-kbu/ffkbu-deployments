@@ -34,13 +34,17 @@
     - "{{ unifi_ssl_letsencrypt_live_folder }}/privkey.pem"
   when: unifi_ssl_letsencrypt_enabled
 
+- name: Create docker networks
+  community.docker.docker_network:
+    name: unifi
+
 - name: Install unifi docker container
   community.docker.docker_container:
     name: unifi
     image: jacobalberty/unifi
     state: started
     networks:
-      - name: host
+      - name: unifi
     restart_policy: unless-stopped
     user: root
     ports:
