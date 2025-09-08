@@ -87,6 +87,8 @@ eval $(printf "set service dhcp-server shared-network-name LAN subnet $DHCP_NETW
 eval $(printf "set service dhcp-server shared-network-name LAN subnet $DHCP_NETWORK_V4 domain-name $DNS_DOMAIN")
 eval $(printf "set service dhcp-server shared-network-name LAN subnet $DHCP_NETWORK_V4 time-server $ROUTER_GUI_LISTEN_ADDRESS")
 eval $(printf "set service dhcp-server shared-network-name LAN subnet $DHCP_NETWORK_V4 lease $DHCP_LEASE_TIME")
+eval $(printf "set service dhcp-server shared-network-name LAN subnet $DHCP_NETWORK_V4 lease $DHCP_LEASE_TIME")
+eval $(printf "set service dhcp-server shared-network-name LAN subnet $DHCP_NETWORK_V4 unifi-controller $DNS_SERVER_SECONDARY_IP")
 
 eval $(printf "set interfaces ethernet $ROUTER_INTERFACE_LAN ipv6 dup-addr-detect-transmits 1")
 eval $(printf "set interfaces ethernet $ROUTER_INTERFACE_LAN ipv6 router-advert cur-hop-limit 64")
