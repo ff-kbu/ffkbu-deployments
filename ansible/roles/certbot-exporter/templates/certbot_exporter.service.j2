@@ -10,5 +10,7 @@ Type=simple
 User={{ certbot_exporter_user }}
 Group={{ certbot_exporter_group }}
 ExecStart={{ certbot_exporter_base_folder }}/node-cert-exporter-linux-amd64 --path="{{ certbot_exporter_certificate_path }}" --listen {{ certbot_exporter_listen_address }}:9117
-Restart=always[Install]
+Restart=always
+
+[Install]
 WantedBy=multi-user.target
