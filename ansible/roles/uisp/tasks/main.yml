@@ -28,6 +28,18 @@
     remote_src: true
     mode: "0750"
 
+- name: Get current docker version
+  ansible.builtin.shell: "docker --version | awk '{print $3}' | sed 's/,//'"
+  register: docker_version
+  changed_when: false
+  failed_when: false
+
+- name: Apply docker version fix
+  ansible.builtin.replace:
+    path: "{{ setup_dir.path }}/install-full.sh"
+    regexp: "^export DESIRED_DOCKER_VERSION=.*"
+    replace: 'export DESIRED_DOCKER_VERSION="{{ docker_version.stdout }}"'
+
 - name: Apply setup fix
   # https://community.ui.com/questions/UISP-installation-error/afedb63b-407a-4f1b-b9e4-0987efb4dddd
   ansible.builtin.replace:
