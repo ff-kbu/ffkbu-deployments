@@ -1,4 +1,4 @@
-hcloud_server_type: cpx31
+hcloud_server_type: cpx32
 hcloud_location: nbg1
 hcloud_image: debian-12
 hcloud_ssh_keys:
