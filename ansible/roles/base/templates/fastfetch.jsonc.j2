@@ -1,0 +1,97 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+
+  "logo": "auto",
+
+  "modules": [
+    { "type": "title", "fqdn": true },
+
+    {
+      "type": "os",
+      "key": "OS",
+      "arch": true,
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "host",
+      "key": "Host",
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "kernel",
+      "key": "Kernel",
+      "short": true,
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "uptime",
+      "key": "Uptime",
+      "short": true,
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "cpu",
+      "key": "CPU",
+      "showBrand": true,
+      "showSpeed": true,
+      "cores": "logical",
+      "temperature": true,
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "cpuusage",
+      "key": "CPU Usage",
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "memory",
+      "key": "Memory",
+      "unit": "MB",
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "disk",
+      "key": "Disk",
+      "folders": ["/"],
+      "percent": { "type": 15 },
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "localip",
+      "key": "Local IP",
+      "keyColor": "red",
+      "valueColor": "default"
+    },
+
+    {
+      "type": "publicip",
+      "key": "Public IP",
+      "url": "http://ident.me",
+      "timeout": 2000,
+      "keyColor": "red",
+      "valueColor": "default"
+    }
+    {% for metric in custom_fastfetch_metrics | default([]) %}
+    ,
+    {{ metric | to_nice_json(indent=4) }}
+    
+    {% endfor %}
+  ]
+}

@@ -1,0 +1,12 @@
+custom_fastfetch_metrics:
+  - type: command
+    key: "Internal IPv4"
+    text: "ip a s eth1 | grep -o 'inet [0-9.]\\+' | awk '{printf \"%s \", $2}'"
+    keyColor: "red"
+    valueColor: "default"
+
+  - type: command
+    key: "FQDN"
+    text: "nslookup $(hostname -I | awk '{print $1}') | awk -F'= ' '/name/ {print $2}' | cut -d' ' -f1 | sed 's/\\.$//'"
+    keyColor: "red"
+    valueColor: "default"
