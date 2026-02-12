@@ -24,30 +24,8 @@
     line: 'HISTTIMEFORMAT="%d/%m/%y %T "'
   tags: tweaks
 
-- name: tweaks | Remove normal motd
-  ansible.builtin.file:
-    path: /etc/motd
-    state: absent
+- ansible.builtin.include_tasks: fastfetch.yml
   tags: tweaks
-
-- name: tweaks | Create neofetch config directory
-  ansible.builtin.file:
-    path: /etc/neofetch
-    state: directory
-  tags: tweaks
-
-- name: tweaks | Configure neofetch
-  ansible.builtin.template:
-    src: neofetch.conf.j2
-    dest: /etc/neofetch/neofetch.conf
-  tags: tweaks
-
-- name: tweaks | Create motd script
-  ansible.builtin.template:
-    src: motd.sh.j2
-    dest: /etc/profile.d/motd.sh
-    mode: "0755"
-  tags: weaks
 
 - name: tweaks | Search for defaults.vim file
   ansible.builtin.find:
