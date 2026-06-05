@@ -1,10 +1,12 @@
+# EdgeOS Setup
+
 ## Portkonfiguration
 
-| Port  | Zuweisung  |
-|-------|------------|
-| eth0  | WAN0       |
-| eth1  | WAN1 (optional)       |
-| eth2  | LAN        |
+| Port  | Zuweisung        |
+|-------|------------------|
+| eth0  | WAN0             |
+| eth1  | WAN1 (optional)  |
+| eth2  | LAN              |
 
 ## Vorbereitung
 1. Lade die passende Firmware auf den Host herunter, falls die Firmware nicht `v3.x.x` ist und somit Wireguard nicht ad-hoc unterstützt:
@@ -23,38 +25,45 @@
     HW S/N:       AC8BA9BCC643
     Uptime:       23:17:08 up 3 days,  9:50,  1 user,  load average: 1.05, 1.05, 1.07
     ```
-2. Benenne die Firmware-Datei in 'firmware.tar' um.
+2. Benenne die Firmware-Datei in `firmware.tar` um.
 3. Schließe den Router an den Strom an (falls noch nicht geschehen) und warte 60 Sekunden, damit der Bootvorgang abgeschlossen wird.
-4.  Halte den Reset-Knopf des Routers 10 Sekunden lang gedrückt. Warte 60 Sekunden für den Neustart.
+4. Halte den Reset-Knopf des Routers 10 Sekunden lang gedrückt. Warte 60 Sekunden für den Neustart.
 5. Trenne den Host von allen Netzwerken (Kabel und/oder WLAN).
 6. Wähle eine LAN-Schnittstelle am Host und setze deren IP-Adresse in den Bereich 192.168.1.0/24, wobei 192.168.1.1 für den Router selbst freigelassen wird.
 
 ## Initiale Verbindung
 1. Verbinde den Router mit `eth0` an die Schnittstelle.
-2. Verbinde dich mit ubnt@192.168.1.1 mit dem Passwort 'ubnt'.
+2. Verbinde dich mit `ubnt@192.168.1.1` mit dem Passwort `ubnt`.
 3. Überprüfe die Betriebssystemversion: `show version`
-4. Falls die Version nicht mit `v3.x` beginnt, fahre mit [`Firmware Aktualisierung`](#Firmware-Aktualisierung) fort, andernfalls gehe zum Punkt [`Konfiguration`](#Konfiguration).
+4. Falls die Version nicht mit `v3.x` beginnt, fahre mit [Firmware Aktualisierung](#firmware-aktualisierung) fort, andernfalls gehe zu [Konfiguration](#konfiguration).
 
 ## Firmware Aktualisierung
-1. Führe den SCP-Befehl auf dem Host in einem zweiten Terminal mit dem Passwort 'ubnt' aus: 'scp <path/to/firmware.tar> ubnt@192.168.1.1:/tmp/'
-2. Im ersten Terminal, das die SSH-Sitzung ausführt, führe aus: 'add system image /tmp/firmware.tar'
-3. Führe den Befehl 'reboot' aus und warte 60 Sekunden, bis der Router neu startet.
+1. Führe den SCP-Befehl auf dem Host in einem zweiten Terminal aus:
+    ```
+    scp <path/to/firmware.tar> ubnt@192.168.1.1:/tmp/
+    ```
+2. Im SSH-Terminal führe aus:
+    ```
+    add system image /tmp/firmware.tar
+    ```
+3. Führe `reboot` aus und warte 60 Sekunden, bis der Router neu startet.
 4. Stelle die SSH-Verbindung wieder her.
+5. Sollte ein Hinweis zur Aktualisierungsmöglichkeit des Bootimages erscheinen, führe dieses ebenfalls durch und starte den Router danach mittels `reboot` erneut.
 
 ## Konfiguration
 ### Teil 1
-1. Setze zuerst die Konfigurationsvariablen in der setup.sh (`ZZZ` und `YYY`), kopiere dann die Konfiguration in die Zwischenablage und führe sie im SSH-Terminal aus. Der Router wird neu starten.
+1. Setze zuerst die Konfigurationsvariablen in der `setup.sh` (`ROUTER_NAME` und `ROUTER_LOCATION_ADDRESS`), kopiere dann die Konfiguration in die Zwischenablage und führe sie im SSH-Terminal aus. Der Router wird neu starten.
 2. Wenn der Router neu startet, trenne den Host von eth0. Warte 60 Sekunden, bis der Bootvorgang abgeschlossen ist.
 3. Stelle die Host-Schnittstelle, die zuvor auf 192.168.1.x eingestellt wurde, auf DHCP um.
 
 ### Teil 2
 1. Verbinde den Host mit `eth2` des Routers. Eine IP-Adresse sollte zugewiesen werden.
-2. Verbinde dich erneut via ssh, jedoch nun mit der IP, welche in `ROUTER_IPV4_ADDRESS` definiert wurde. Diese entspricht auch der Gateway IP-Addresse, welche via DHCP zugeteilt wird.
+2. Verbinde dich erneut via SSH, jedoch nun mit der IP, welche in `ROUTER_IPV4_ADDRESS` definiert wurde. Diese entspricht auch der Gateway-IP-Adresse, welche via DHCP zugeteilt wird.
 3. Kopiere das Skript, füge es ein und führe es erneut aus. Jetzt wird der verbleibende Teil der Konfiguration angewendet. Der Router startet ein zweites Mal neu.
-4. Die Einrichtung ist abgeschlossen. Trenne den Router vom Host und lösche die heruntergeladene Datei 'firmware.tar'.
+4. Die Einrichtung ist abgeschlossen. Trenne den Router vom Host und lösche die heruntergeladene Datei `firmware.tar`.
 
 ## Überprüfung
-1. Verbinde dich nach dem reboot erneut mit dem Router, diesmal jedoch mit nem neuen Passwort.
+1. Verbinde dich nach dem Reboot erneut mit dem Router, diesmal mit dem neuen Passwort.
 2. Der Befehl `show interfaces` sollte nun die konfigurierten Schnittstellen anzeigen, wobei WAN1 optional ist:
     ```
     Interface    IP Address                        S/L  Description
@@ -86,7 +95,7 @@
     persistent keepalive: every 10 seconds
     ```
 
-4. Der Befehl `show ip bgp summary` sollte zwei aktive BGP sessions anzeigen:
+4. Der Befehl `show ip bgp summary` sollte zwei aktive BGP-Sessions anzeigen:
     ```
     BGP router identifier 10.105.0.0, local AS number 65528
     BGP table version is 27
