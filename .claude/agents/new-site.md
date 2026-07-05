@@ -204,3 +204,27 @@ echo "============================================================"
 Zeige nach Abschluss Interface, Port, Subnetz, beide Public Keys und die geänderten Dateien. Empfohlener nächster Schritt: `git diff ansible/env_prd/group_vars/exitnode/`
 
 **Private Keys niemals im Klartext ausgeben.**
+
+## Schritt 6 (optional): setup.sh für den EdgeRouter generieren
+
+Frage per `AskUserQuestion`: "Soll eine fertig befüllte `setup_<name>.sh` für den EdgeRouter auf dem Desktop gespeichert werden?"
+
+Nur bei Zustimmung: Erstelle `~/Desktop/setup_<name>.sh` als Kopie von `edgeos/setup.sh` mit folgenden Ersetzungen (alle Platzhalter gelten für `N` aus Schritt 2 und `name` aus Schritt 2):
+
+| Platzhalter | Wert |
+|-------------|------|
+| `ZZZ` | `ff<name>up01` |
+| `YYY` | Per `AskUserQuestion` erfragen: "Standortadresse für Login-Banner?" (Format ohne Umlaute: `Str. Nr, PLZ Stadt`, ß → `ss` oder Abkürzung) |
+| `194XX` | `19400 + N - 100` |
+| `10.1XX.0.*` | `10.N.0.*` |
+| `2a03:2260:101a:1XX::*` | `2a03:2260:101a:N::*` |
+| `10.2XX.0.*` | `10.(N+100).0.*` |
+| `10.2XX.255.254` | `10.(N+100).255.254` |
+| `10.2XX.0.0/16` | `10.(N+100).0.0/16` |
+| `2a03:2260:101a:2XX::*` | `2a03:2260:101a:(N+100)::*` |
+
+Beide WireGuard-Keys sind nach Schritt 4 bekannt und werden direkt eingesetzt:
+- `WIREGUARD_REMOTE_PUBKEY` = `<server_pub>` (Exitnode Public Key, aus Schritt 4)
+- `WIREGUARD_PRIVATE_KEY` = `<client_priv>` (Router Private Key, aus Schritt 4, Klartext)
+
+**Wichtig:** Nach erfolgreichem Router-Setup muss `WIREGUARD_PRIVATE_KEY` in der gespeicherten Datei auf `""` zurückgesetzt werden — der Kommentar `# CHANGE TO "" AFTER SETUP !!!` im Skript erinnert daran.
