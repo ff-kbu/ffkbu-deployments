@@ -1,4 +1,4 @@
-#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+#jinja2: lstrip_blocks: True, trim_blocks: True
 # {{ ansible_managed }}
 {% for config in base_extra_ips %}
 {% if config.ip4 is defined %}

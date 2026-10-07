@@ -1,4 +1,4 @@
-#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+#jinja2: lstrip_blocks: True, trim_blocks: True
 # {{ ansible_managed }}
 
 ARGS="{% if prometheus_bird_exporter_use_version_2 | bool %}-bird.v2 {% endif %}-format.new -proto.ospf={{ prometheus_bird_exporter_enable_ospf }} -web.listen-address={{ prometheus_bird_exporter_web_listen_address }} "

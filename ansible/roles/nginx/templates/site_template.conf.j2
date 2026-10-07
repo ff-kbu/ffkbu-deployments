@@ -1,4 +1,4 @@
-#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+#jinja2: lstrip_blocks: True, trim_blocks: True
 # {{ ansible_managed }}
 server {
   server_name {{ item.site }}{% if item.aliases is defined %} {{ item.aliases|join(' ') }}{% endif %};
