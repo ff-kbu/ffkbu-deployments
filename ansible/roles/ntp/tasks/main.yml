@@ -1,6 +1,6 @@
 ---
 - name: Include OS-specific variables.
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
 
 - name: Set the ntp_driftfile variable.
   ansible.builtin.set_fact:
@@ -31,7 +31,7 @@
   ansible.builtin.package:
     name: "{{ ntp_tzdata_package }}"
     state: present
-  when: ansible_system == "Linux"
+  when: ansible_facts['system'] == "Linux"
 
 - name: Set timezone.
   community.general.timezone:

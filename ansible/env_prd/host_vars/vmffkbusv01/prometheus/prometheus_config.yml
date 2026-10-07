@@ -1,5 +1,5 @@
 prometheus_web_listen_address: "127.0.0.1:9090"
-prometheus_web_external_url: "https://{{ ansible_fqdn }}/prometheus"
+prometheus_web_external_url: "https://{{ ansible_facts['fqdn'] }}/prometheus"
 prometheus_config_flags_extra:
   web.route-prefix: "/prometheus"
 

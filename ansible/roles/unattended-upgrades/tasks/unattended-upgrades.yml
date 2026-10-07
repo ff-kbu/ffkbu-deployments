@@ -1,14 +1,14 @@
 ---
 - name: Setup | add distribution-specific variables
-  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['distribution'] }}.yml"
 
 - name: Setup | add Debian Wheezy workaround
-  ansible.builtin.include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_release }}.yml"
-  when: (ansible_distribution == "Debian") and (ansible_distribution_release == "wheezy")
+  ansible.builtin.include_vars: "{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_release'] }}.yml"
+  when: (ansible_facts['distribution'] == "Debian") and (ansible_facts['distribution_release'] == "wheezy")
 
 - name: Setup | add Debian Bullseye workaround
-  ansible.builtin.include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_release }}.yml"
-  when: (ansible_distribution == "Debian") and (ansible_distribution_release == "bullseye")
+  ansible.builtin.include_vars: "{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_release'] }}.yml"
+  when: (ansible_facts['distribution'] == "Debian") and (ansible_facts['distribution_release'] == "bullseye")
 
 - name: Setup | install powermgmt-base
   ansible.builtin.apt:

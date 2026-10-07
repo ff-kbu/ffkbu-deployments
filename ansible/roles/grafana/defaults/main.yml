@@ -8,7 +8,7 @@ grafana_use_provisioning: true
 # Should the provisioning be kept synced. If true, previous provisioned objects will be removed if not referenced anymore.
 grafana_provisioning_synced: false
 
-grafana_instance: "{{ ansible_fqdn | default(ansible_host) | default(inventory_hostname) }}"
+grafana_instance: "{{ ansible_facts['fqdn'] | default(ansible_host) | default(inventory_hostname) }}"
 
 grafana_logs_dir: "/var/log/grafana"
 grafana_data_dir: "/var/lib/grafana"
@@ -23,7 +23,7 @@ grafana_cap_net_bind_service: false
 # External Grafana address. Variable maps to "root_url" in grafana server section
 grafana_url: "http://{{ grafana_address }}:{{ grafana_port }}"
 grafana_api_url: "{{ grafana_url }}"
-grafana_domain: "{{ ansible_fqdn | default(ansible_host) | default('localhost') }}"
+grafana_domain: "{{ ansible_facts['fqdn'] | default(ansible_host) | default('localhost') }}"
 
 # Additional options for grafana "server" section
 # This section WILL omit options for: http_addr, http_port, domain, and root_url, as those settings are set by variables listed before

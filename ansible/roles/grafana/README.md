@@ -29,7 +29,7 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `grafana_system_group` | grafana | Grafana server system group |
 | `grafana_version` | latest | Grafana package version |
 | `grafana_yum_repo_template` | etc/yum.repos.d/grafana.repo.j2 | Yum template to use |
-| `grafana_instance` | {{ ansible_fqdn \| default(ansible_host) \| default(inventory_hostname) }} | Grafana instance name |
+| `grafana_instance` | {{ ansible_facts['fqdn'] \| default(ansible_host) \| default(inventory_hostname) }} | Grafana instance name |
 | `grafana_logs_dir` | /var/log/grafana | Path to logs directory |
 | `grafana_data_dir` | /var/lib/grafana | Path to database directory |
 | `grafana_address` | 0.0.0.0 | Address on which grafana listens |
@@ -37,7 +37,7 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `grafana_cap_net_bind_service` | false | Enables the use of ports below 1024 without root privilages by leveraging the 'capabilities' of the linux kernel. read: http://man7.org/linux/man-pages/man7/capabilities.7.html |
 | `grafana_url` | "http://{{ grafana_address }}:{{ grafana_port }}" | Full URL used to access Grafana from a web browser |
 | `grafana_api_url` | "{{ grafana_url }}" | URL used for API calls in provisioning if different from public URL. See [this issue](https://github.com/cloudalchemy/ansible-grafana/issues/70). |
-| `grafana_domain` | "{{ ansible_fqdn \| default(ansible_host) \| default('localhost') }}" | setting is only used in as a part of the `root_url` option. Useful when using GitHub or Google OAuth |
+| `grafana_domain` | "{{ ansible_facts['fqdn'] \| default(ansible_host) \| default('localhost') }}" | setting is only used in as a part of the `root_url` option. Useful when using GitHub or Google OAuth |
 | `grafana_server` | { protocol: http, enforce_domain: false, socket: "", cert_key: "", cert_file: "", enable_gzip: false, static_root_path: public, router_logging: false } | [server](http://docs.grafana.org/installation/configuration/#server) configuration section |
 | `grafana_security` | { admin_user: admin, admin_password: "" } | [security](http://docs.grafana.org/installation/configuration/#security) configuration section |
 | `grafana_database` | { type: sqlite3 } | [database](http://docs.grafana.org/installation/configuration/#database) configuration section |

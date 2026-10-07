@@ -1,7 +1,7 @@
 ---
 - name: Set apt repositories
   ansible.builtin.copy:
-    content: "{{ lookup('ansible.builtin.vars',  'base_apt_mirrors_' + ansible_distribution_release | lower) }}"
+    content: "{{ lookup('ansible.builtin.vars',  'base_apt_mirrors_' + ansible_facts['distribution_release'] | lower) }}"
     dest: /etc/apt/sources.list
 
 - name: debian | Allow release info change

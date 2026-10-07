@@ -4,7 +4,7 @@
     path: "{{ node_exporter_textfile_scripts_dir }}/apt.sh"
   register: txtcollect_apt
   when:
-    - ansible_distribution == 'Debian'
+    - ansible_facts['distribution'] == 'Debian'
 
 - name: textfile-collector | Configure cron job to expose apt metrics
   ansible.builtin.cron:
@@ -17,7 +17,7 @@
     # see also: https://github.com/prometheus-community/node-exporter-textfile-collector-scripts
     job: "{{ node_exporter_textfile_scripts_dir }}/apt.sh | sponge {{ node_exporter_textfile_dir }}/apt.prom"
   when:
-    - ansible_distribution == 'Debian'
+    - ansible_facts['distribution'] == 'Debian'
     - txtcollect_apt.stat.exists
 
 - name: textfile-collector | Check script debian_version.sh exists
@@ -25,7 +25,7 @@
     path: "{{ node_exporter_textfile_scripts_dir }}/debian_version.sh"
   register: txtcollect_debian_version
   when:
-    - ansible_distribution == 'Debian'
+    - ansible_facts['distribution'] == 'Debian'
 
 # Feature: Include OS release/version metric: https://github.com/prometheus/node_exporter/issues/1574
 - name: textfile-collector | Configure cron job to expose debian_version metrics
@@ -39,7 +39,7 @@
     # see also: https://github.com/prometheus-community/node-exporter-textfile-collector-scripts
     job: "{{ node_exporter_textfile_scripts_dir }}/debian_version.sh | sponge {{ node_exporter_textfile_dir }}/debian_version.prom"
   when:
-    - ansible_distribution == 'Debian'
+    - ansible_facts['distribution'] == 'Debian'
     - txtcollect_debian_version.stat.exists
 
 - name: textfile-collector | Check script minio.sh exists
@@ -47,7 +47,7 @@
     path: "{{ node_exporter_textfile_scripts_dir }}/minio.sh"
   register: txtcollect_minio
   when:
-    - ansible_distribution == 'Debian'
+    - ansible_facts['distribution'] == 'Debian'
     - "'minio' in group_names"
 
 # Feature: Include OS release/version metric: https://github.com/prometheus/node_exporter/issues/1574
@@ -61,6 +61,6 @@
     # see also: https://github.com/prometheus-community/node-exporter-textfile-collector-scripts
     job: "{{ node_exporter_textfile_scripts_dir }}/minio.sh | sponge {{ node_exporter_textfile_dir }}/minio.prom"
   when:
-    - ansible_distribution == 'Debian'
+    - ansible_facts['distribution'] == 'Debian'
     - "'minio' in group_names"
     - txtcollect_minio.stat.exists

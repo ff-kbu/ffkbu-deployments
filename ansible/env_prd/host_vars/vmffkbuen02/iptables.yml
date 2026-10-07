@@ -51,28 +51,28 @@ base_iptables_rules:
 
   - chain: INPUT
     in_interface: eth0
-    destination: "{{ ansible_default_ipv4.address }},{{ eth0_floating_ipv4 }}"
+    destination: "{{ ansible_facts['default_ipv4'].address }},{{ eth0_floating_ipv4 }}"
     jump: ACCEPT
     comment: "Ansible managed"
     ip_version: ipv4
 
   - chain: OUTPUT
     out_interface: eth0
-    source: "{{ ansible_default_ipv4.address }},{{ eth0_floating_ipv4 }}"
+    source: "{{ ansible_facts['default_ipv4'].address }},{{ eth0_floating_ipv4 }}"
     jump: ACCEPT
     comment: "Ansible managed"
     ip_version: ipv4
 
   - chain: INPUT
     in_interface: eth0
-    destination: "{{ ansible_default_ipv6.address }},{{ eth0_floating_ipv6 }}"
+    destination: "{{ ansible_facts['default_ipv6'].address }},{{ eth0_floating_ipv6 }}"
     jump: ACCEPT
     comment: "Ansible managed"
     ip_version: ipv6
 
   - chain: OUTPUT
     out_interface: eth0
-    source: "{{ ansible_default_ipv6.address }},{{ eth0_floating_ipv6 }}"
+    source: "{{ ansible_facts['default_ipv6'].address }},{{ eth0_floating_ipv6 }}"
     jump: ACCEPT
     comment: "Ansible managed"
     ip_version: ipv6

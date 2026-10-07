@@ -6,17 +6,17 @@
 
 - name: Generate an OpenSSL private key.
   community.crypto.openssl_privatekey:
-    path: "/etc/ssl/private/{{ ansible_hostname }}.pem"
+    path: "/etc/ssl/private/{{ ansible_facts['hostname'] }}.pem"
 
 - name: Generate an OpenSSL CSR.
   community.crypto.openssl_csr:
-    path: "/etc/ssl/csr/{{ ansible_hostname }}.csr"
-    privatekey_path: "/etc/ssl/private/{{ ansible_hostname }}.pem"
-    common_name: "{{ ansible_hostname }}"
+    path: "/etc/ssl/csr/{{ ansible_facts['hostname'] }}.csr"
+    privatekey_path: "/etc/ssl/private/{{ ansible_facts['hostname'] }}.pem"
+    common_name: "{{ ansible_facts['hostname'] }}"
 
 - name: Generate a self signed OpenSSL certificate
   community.crypto.x509_certificate:
-    path: "/etc/ssl/certs/{{ ansible_hostname }}.crt"
-    privatekey_path: "/etc/ssl/private/{{ ansible_hostname }}.pem"
-    csr_path: "/etc/ssl/csr/{{ ansible_hostname }}.csr"
+    path: "/etc/ssl/certs/{{ ansible_facts['hostname'] }}.crt"
+    privatekey_path: "/etc/ssl/private/{{ ansible_facts['hostname'] }}.pem"
+    csr_path: "/etc/ssl/csr/{{ ansible_facts['hostname'] }}.csr"
     provider: selfsigned

@@ -3,20 +3,20 @@
 base_exim4_config_file: /etc/exim4/update-exim4.conf.conf
 
 base_apt_mirrors_bookworm: |
-  deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }} contrib main non-free-firmware
-  deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }}-updates contrib main non-free-firmware
-  deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }}-backports contrib main non-free-firmware
-  deb http://deb.debian.org/debian-security {{ ansible_distribution_release | lower }}-security contrib main non-free-firmware
+  deb http://deb.debian.org/debian {{ ansible_facts['distribution_release'] | lower }} contrib main non-free-firmware
+  deb http://deb.debian.org/debian {{ ansible_facts['distribution_release'] | lower }}-updates contrib main non-free-firmware
+  deb http://deb.debian.org/debian {{ ansible_facts['distribution_release'] | lower }}-backports contrib main non-free-firmware
+  deb http://deb.debian.org/debian-security {{ ansible_facts['distribution_release'] | lower }}-security contrib main non-free-firmware
 
 base_apt_mirrors_trixie: |
   Types: deb
   URIs: https://deb.debian.org/debian
-  Suites: {{ ansible_distribution_release | lower }} {{ ansible_distribution_release | lower }}-updates
+  Suites: {{ ansible_facts['distribution_release'] | lower }} {{ ansible_facts['distribution_release'] | lower }}-updates
   Components: main non-free-firmware
   Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
 
   Types: deb
   URIs: https://security.debian.org/debian-security
-  Suites: {{ ansible_distribution_release | lower }}-security
+  Suites: {{ ansible_facts['distribution_release'] | lower }}-security
   Components: main non-free-firmware
   Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
