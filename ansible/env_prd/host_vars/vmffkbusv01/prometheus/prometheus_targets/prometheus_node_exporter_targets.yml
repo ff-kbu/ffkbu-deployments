@@ -5,5 +5,5 @@ prometheus_node_exporter_targets:
       - vmffkbuen01.ffkbu.lan:9100
       - vmffkbuen02.ffkbu.lan:9100
     labels:
-      server: "{{ ansible_hostname }}"
+      server: "{{ ansible_facts['hostname'] }}"
       env: prd

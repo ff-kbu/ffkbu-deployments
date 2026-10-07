@@ -18,7 +18,7 @@
   ansible.builtin.command: apt clean
   when:
     - _old_grafana_pkgs is changed
-    - ansible_pkg_mgr == "apt"
+    - ansible_facts['pkg_mgr'] == "apt"
   tags: skip_ansible_lint
 
 - block:
@@ -36,7 +36,7 @@
         state: present
         update_cache: true
   when:
-    - ansible_pkg_mgr == "apt"
+    - ansible_facts['pkg_mgr'] == "apt"
   environment: "{{ grafana_environment }}"
 
 - name: Install Grafana

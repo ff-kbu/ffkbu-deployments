@@ -33,7 +33,7 @@ AllowedIPs = 0.0.0.0/0, ::/0
 {% if item.wireguard_endpoint is defined %}
 Endpoint = {{ item.wireguard_endpoint }}:{{ item.port }}
 {% else %}
-Endpoint = {{ ansible_default_ipv4.address }}:{{ item.port }}
+Endpoint = {{ ansible_facts['default_ipv4'].address }}:{{ item.port }}
 {% endif %}
 {% if 'psk' in config %}
 PresharedKey = {{ config['psk'] }}

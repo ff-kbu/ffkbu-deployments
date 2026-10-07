@@ -5,5 +5,5 @@ prometheus_nginx_exporter_targets:
       - vmffkbuen01.ffkbu.lan:9322
       - vmffkbuen02.ffkbu.lan:9322
     labels:
-      server: "{{ ansible_hostname }}"
+      server: "{{ ansible_facts['hostname'] }}"
       env: prd

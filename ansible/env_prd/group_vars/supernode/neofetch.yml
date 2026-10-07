@@ -6,7 +6,7 @@ base_neofetch_custom_metrics:
   - name: "Internal IPv4"
     value: "$(ip a s eth1 | grep -o 'inet [0-9.]\\+' | awk '{printf \"%s \", $2}')"
   - name: "FQDN"
-    value: "$(nslookup {{ ansible_default_ipv4.address | ansible.utils.ipaddr('address') }} | awk -F'= ' '/name/ {print $2}' | cut -d' ' -f1 | sed 's/\\.$//')"
+    value: "$(nslookup {{ ansible_facts['default_ipv4'].address | ansible.utils.ipaddr('address') }} | awk -F'= ' '/name/ {print $2}' | cut -d' ' -f1 | sed 's/\\.$//')"
   - name: "Clients (Hood)"
     value: "$(batctl tg |wc -l)"
   - name: "Peers (lokal)"

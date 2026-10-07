@@ -3,5 +3,5 @@ prometheus_bird_exporter_targets:
       - vmffkbuen01.ffkbu.lan:9399
       - vmffkbuen02.ffkbu.lan:9399
     labels:
-      server: "{{ ansible_hostname }}"
+      server: "{{ ansible_facts['hostname'] }}"
       env: prd
