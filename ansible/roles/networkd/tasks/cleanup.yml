@@ -32,13 +32,13 @@
     src: /etc/network/interfaces.d/
     dest: /etc/network/interfaces.d.old/
     remote_src: true
-  when: legacy_network_files.files | default([]) | length
+  when: (legacy_network_files.files | default([]) | length) > 0
 
 - name: Remove legacy network configurations
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
   loop: "{{ legacy_network_files.files }}"
-  when: legacy_network_files.files | default([]) | length
+  when: (legacy_network_files.files | default([]) | length) > 0
   notify:
     - Restart systemd-networkd

@@ -60,7 +60,7 @@
 - ansible.builtin.include_tasks: host.yml
 
 - ansible.builtin.include_tasks: iptables.yml
-  when: base_iptables_rules | length
+  when: (base_iptables_rules | length) > 0
   tags: iptables
 
 - name: Set provision status

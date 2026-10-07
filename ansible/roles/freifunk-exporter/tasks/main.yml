@@ -13,7 +13,7 @@
 
 - ansible.builtin.assert:
     that:
-      - freifunk_exporter_data_sources | length
+      - (freifunk_exporter_data_sources | length) > 0
     msg: "A data url to query node information from is required - check your 'freifunk_exporter_data_sources' variable!"
 
 - name: Check exporter installation

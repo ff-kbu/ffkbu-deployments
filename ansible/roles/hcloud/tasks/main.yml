@@ -50,7 +50,7 @@
   delegate_to: localhost
   run_once: true
   loop: "{{ hcloud_placement_groups_sorted | unique }}"
-  when: hcloud_placement_groups_sorted | length
+  when: (hcloud_placement_groups_sorted | length) > 0
   tags:
     - hcloud-servergroups
     - hcloud_server

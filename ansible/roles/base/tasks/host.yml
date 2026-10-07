@@ -6,11 +6,11 @@
       {% for host in base_custom_hosts %}
       {{ host.ip }}   {{ host.aliases | join (' ') }}
       {% endfor %}
-  when: base_custom_hosts | length
+  when: (base_custom_hosts | length) > 0
 
 - name: Add custom IP adresses
   ansible.builtin.template:
     src: custom_ips.j2
     dest: /etc/network/interfaces.d/60-floating_ip
   notify: restart_network
-  when: base_extra_ips | length
+  when: (base_extra_ips | length) > 0

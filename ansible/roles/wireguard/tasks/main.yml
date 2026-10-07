@@ -33,7 +33,7 @@
 - name: Remove obsolete wireguard interface configurations
   ansible.builtin.shell: "rm -f {{ wireguard_private_key_dir }}/{{ item }}.*"
   loop: "{{ wg_current_interfaces.stdout_lines | ansible.builtin.difference(wireguard_interfaces | map(attribute='interface') | list ) }}"
-  when: wg_current_interfaces.stdout_lines | default([]) | length
+  when: (wg_current_interfaces.stdout_lines | default([]) | length) > 0
   notify: Restart systemd-networkd
   tags:
     - skip_ansible_lint
@@ -41,7 +41,7 @@
 - name: Remove obsolete wireguard interfaces
   ansible.builtin.shell: "ip link del {{ item }}"
   loop: "{{ wg_current_interfaces.stdout_lines | ansible.builtin.difference(wireguard_interfaces | map(attribute='interface') | list ) }}"
-  when: wg_current_interfaces.stdout_lines | default([]) | length
+  when: (wg_current_interfaces.stdout_lines | default([]) | length) > 0
   notify: Restart systemd-networkd
   tags:
     - skip_ansible_lint
@@ -52,7 +52,7 @@
     state: absent
   loop: "{{ wg_current_interfaces.stdout_lines | ansible.builtin.difference(wireguard_interfaces | map(attribute='interface') | list ) }}"
   notify: Restart systemd-networkd
-  when: wg_current_interfaces.stdout_lines | default([]) | length
+  when: (wg_current_interfaces.stdout_lines | default([]) | length) > 0
 
 - name: Create private key file
   ansible.builtin.copy:

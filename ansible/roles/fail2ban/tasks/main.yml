@@ -82,7 +82,7 @@
   loop: "{{ fail2ban_custom_filters }}"
   when:
     - fail2ban_filterd_path is defined
-    - fail2ban_custom_filters | length
+    - (fail2ban_custom_filters | length) > 0
   notify:
     - restart fail2ban
   tags:
@@ -100,7 +100,7 @@
   loop: "{{ fail2ban_custom_actions }}"
   when:
     - fail2ban_actiond_path is defined
-    - fail2ban_custom_actions | length
+    - (fail2ban_custom_actions | length) > 0
   notify:
     - restart fail2ban
   tags:
@@ -118,7 +118,7 @@
   loop: "{{ fail2ban_custom_jails }}"
   when:
     - fail2ban_jaild_path is defined
-    - fail2ban_custom_jails | length
+    - (fail2ban_custom_jails | length) > 0
   notify:
     - restart fail2ban
   tags:
