@@ -6,5 +6,5 @@
     - role: docker
       tags: docker
 
-    - role: unms
-      tags: unms
+    - role: unos
+      tags: unos
