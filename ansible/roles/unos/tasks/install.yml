@@ -1,82 +1,72 @@
 ---
-# see: https://github.com/jacobalberty/unifi-docker
+# UniFi OS Server in docker, using the community image
+# see: https://github.com/unihosted/unifi-os-server-docker
+#
+# TLS: unifi-core regenerates its own self-signed certificate unless a certificate was uploaded
+# through the UI. The web UI is therefore only published on localhost and served by nginx,
+# which uses the regular certbot certificate (see the nginx site for unifi in the host_vars).
 - name: Create data directories
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: "0750"
+    # services inside the container run as non-root users (e.g. postgres) and must be able to traverse these
+    mode: "0755"
   loop:
-    - "{{ unifi_base_directory }}/cert"
-    - "{{ unifi_base_directory }}/data"
-    - "{{ unifi_base_directory }}/log"
+    - "{{ unifi_os_directory }}"
+    - "{{ unifi_os_directory }}/uos"
+    - "{{ unifi_os_directory }}/data"
+    # unifi-core creates this with 0750 on first start, then the nginx user inside the container
+    # cannot reach the unix sockets below it and every /api call fails with 502
+    - "{{ unifi_os_directory }}/data/unifi-core"
 
-- ansible.builtin.set_fact:
-    unifi_volumes:
-      - "{{ unifi_base_directory }}:/unifi"
-      - "{{ unifi_base_directory }}/cert:/unifi/cert"
-  when: unifi_ssl_letsencrypt_enabled
-
-- ansible.builtin.set_fact:
-    unifi_volumes:
-      - "{{ unifi_base_directory }}:/unifi"
-  when: not unifi_ssl_letsencrypt_enabled
-
-- name: Copy ssl certificate files
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "{{ unifi_base_directory }}/cert/{{ item | basename }}"
-    mode: "0640"
-    follow: true
-    remote_src: true
-  loop:
-    - "{{ unifi_ssl_letsencrypt_live_folder }}/cert.pem"
-    - "{{ unifi_ssl_letsencrypt_live_folder }}/chain.pem"
-    - "{{ unifi_ssl_letsencrypt_live_folder }}/privkey.pem"
-  when: unifi_ssl_letsencrypt_enabled
+- name: Remove old unifi network server container
+  community.docker.docker_container:
+    name: unifi
+    state: absent
 
 - name: Create docker networks
   community.docker.docker_network:
     name: unifi
 
-- name: Install unifi docker container
+- name: Install unifi os server docker container
   community.docker.docker_container:
-    name: unifi
-    image: jacobalberty/unifi
+    name: unifi-os-server
+    image: "{{ unifi_os_image }}:{{ unifi_os_image_tag }}"
     state: started
     networks:
       - name: unifi
     restart_policy: unless-stopped
-    user: root
+    cgroupns_mode: host
+    capabilities:
+      - NET_RAW
+      - NET_ADMIN
     ports:
       - "{{ unifi_http_bind_address }}:8080:8080"
-      - "{{ unifi_https_bind_address }}:8443:8443"
+      # web ui listens on 443 in the container
+      - "{{ unifi_https_bind_address }}:{{ unifi_https_port }}:443"
       - "{{ unifi_speedtest_bind_address }}:6789:6789"
       - "{{ unifi_stun_bind_address }}:3478:3478/udp"
-      - "{{ unifi_stun_bind_address }}:10001:10001/udp"
+      - "{{ unifi_stun_bind_address }}:10003:10003/udp"
     env:
-      TZ: "Germany/Berlin"
-    volumes: "{{ unifi_volumes }}"
+      TZ: "Europe/Berlin"
+      UOS_SYSTEM_IP: "{{ unifi_system_ip }}"
+      MONGO_INTERNAL: "true"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - "{{ unifi_os_directory }}/uos:/var/lib/uosserver"
+      - "{{ unifi_os_directory }}/uos:/var/lib/unifi"
+      - "{{ unifi_os_directory }}/data:/data"
+    tmpfs:
+      - /run:exec
+      - /run/lock
+      - /tmp:exec
+      - /var/log/journal
+      - /var/opt/unifi/tmp:size=64m
+      - /data/unifi-core/config/http
     labels:
       com.centurylinklabs.watchtower.enable: "{{ unifi_watchtower_active | lower }}"
 
-- name: Install | Enable TLS 1.3
-  ansible.builtin.lineinfile:
-    path: "{{ unifi_base_directory }}/data/system.properties"
-    regexp: "^(# )?{{ item.key }}="
-    line: "{{ item.key }}={{ item.value }}"
-  loop:
-    - {key: 'unifi.https.ciphers', value: 'TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256'}
-    - {key: 'unifi.https.hsts', value: 'true'}
-    - {key: 'unifi.https.hsts.max_age', value: '63072000'}
-    - {key: 'unifi.https.sslEnabledProtocols', value: 'TLSv1.3'}
-  loop_control:
-    label: "{{ item.key }}"
-  when: unifi_ssl_letsencrypt_enabled
-  notify: restart_unifi_docker
-
-- name: Deploy renewal restart script
-  ansible.builtin.template:
-    src: unifi.sh.j2
-    dest: /etc/letsencrypt/renewal-hooks/post/unifi.sh
-    mode: "0750"
-  when: unifi_ssl_letsencrypt_enabled
+- name: Remove obsolete certificate renewal hook
+  ansible.builtin.file:
+    path: /etc/letsencrypt/renewal-hooks/post/unifi.sh
+    state: absent
