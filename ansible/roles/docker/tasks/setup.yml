@@ -55,7 +55,7 @@
     username: "{{ item.username | default(omit) }}"
     password: "{{ item.password | default(omit) }}"
   loop: "{{ docker_registries }}"
-  when: docker_registries | default([]) | length
+  when: (docker_registries | default([]) | length) > 0
   no_log: true # hide password
 
 - name: Add docker networks

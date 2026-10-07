@@ -29,7 +29,7 @@
   loop: "{{ systemd_networkd_routing_tables }}"
   loop_control:
     label: "{{ item.name }}"
-  when: systemd_networkd_routing_tables | length
+  when: (systemd_networkd_routing_tables | length) > 0
 
 - name: Set systemd_network_status task
   ansible.builtin.set_fact:
