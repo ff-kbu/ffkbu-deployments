@@ -10,4 +10,4 @@ fail2ban_custom_jails:
   - unifi.conf
 
 
-fail2ban_unifi_logfile: /opt/unifi/log/server.log
+fail2ban_unifi_logfile: /var/log/nginx/unifi.kbu.freifunk.net.log
