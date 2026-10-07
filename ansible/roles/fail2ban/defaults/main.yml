@@ -44,4 +44,5 @@ fail2ban_custom_jails: []
 fail2ban_custom_actions:
   - iptables.conf
 
-fail2ban_unifi_logfile: /var/log/unifi/server.log
+# access log of the nginx in front of the unifi web ui
+fail2ban_unifi_logfile: /var/log/nginx/access.log
