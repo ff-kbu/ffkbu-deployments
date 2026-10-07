@@ -6,9 +6,3 @@
   ansible.builtin.assert:
     that: "'docker' in services"
     msg: "This role requires docker"
-
-- name: Preflight | Assert that certbot is installed
-  ansible.builtin.assert:
-    that: "'certbot.service' in services"
-    msg: "This role requires certbot"
-  when: unifi_ssl_letsencrypt_enabled | bool

@@ -3,14 +3,21 @@
 # Last Updated: 2018.06.11
 # Notes:
 
-unifi_base_directory: /opt/unifi
+unifi_os_image: ghcr.io/unihosted/unifi-os-server-docker
+# pinned on purpose, upgrade by bumping the tag after taking a backup
+unifi_os_image_tag: "5.1.42"
+unifi_os_directory: /opt/unifi-os
 
-unifi_watchtower_active: true
+# address the unifi devices use to reach the controller (inform host)
+unifi_system_ip: 127.0.0.1
 
-unifi_https_bind_address: 0.0.0.0
+# unifi os server has no update path inside the container, watchtower must not touch it
+unifi_watchtower_active: false
+
+# web ui, published for the reverse proxy (nginx) which terminates TLS
+unifi_https_bind_address: 127.0.0.1
+unifi_https_port: 11443
+
 unifi_stun_bind_address: 127.0.0.1
 unifi_http_bind_address: 0.0.0.0
 unifi_speedtest_bind_address: 0.0.0.0
-
-unifi_ssl_letsencrypt_enabled: false
-unifi_ssl_letsencrypt_live_folder: /etc/letsencrypt/live/my.domain

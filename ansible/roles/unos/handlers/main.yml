@@ -1,5 +1,0 @@
----
-- name: restart_unifi_docker
-  community.docker.docker_container:
-    name: unifi
-    restart: true
