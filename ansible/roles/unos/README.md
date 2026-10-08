@@ -57,4 +57,7 @@ Restore a `.unf` backup in the new UI under Network, Settings, Control Plane, Ba
 - unifi-core regenerates its own self-signed certificate (CN=unifi.local) unless one was uploaded through the UI,
   so a certificate cannot simply be copied into the container. The web UI is published on localhost only
   and nginx terminates TLS with the certbot certificate on port 443 (see `nginx_sites` of the host).
+- `host.docker.internal` and `host.containers.internal` are mapped to `127.0.0.1` (`etc_hosts`): unifi-core queries
+  the discovery client of the image under that name, and in this image the client runs inside the container.
+  Without the entry the console logs "Failed to get lan ip".
 - Deploy order when the UI port changes: this role first (frees the host port), then the nginx role.

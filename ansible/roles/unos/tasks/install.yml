@@ -40,6 +40,12 @@
     capabilities:
       - NET_RAW
       - NET_ADMIN
+    # unifi-core asks the discovery client of the image at host.docker.internal:11002. In this image the client
+    # runs inside the container on 127.0.0.1, without this entry the name does not resolve and the console has
+    # no lan ip ("Failed to get lan ip" in system.log).
+    etc_hosts:
+      host.docker.internal: 127.0.0.1
+      host.containers.internal: 127.0.0.1
     ports:
       - "{{ unifi_http_bind_address }}:8080:8080"
       # web ui listens on 443 in the container
