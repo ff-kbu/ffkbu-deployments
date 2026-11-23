@@ -8,7 +8,8 @@ An Ansible role for deploying Jitsi Meet using Docker containers.
 
 ## Role Variables
 
-- `jitsi_version`: The version of Jitsi Meet to install (default: `stable-8960-1`).
+- `jitsi_version`: The version of Jitsi Meet to install (default: `stable-11509-1`).
+- `jitsi_image_repo`: The registry path the images are pulled from (default: `ghcr.io/jitsi`).
 - `jitsi_domain`: The domain for Jitsi Meet (default: `meet.kbu.freifunk.net`).
 - `jitsi_http_port`: The HTTP port (default: `127.0.0.1:8000`).
 - `jitsi_https_port`: The HTTPS port (default: `127.0.0.1:8443`).

@@ -1,6 +1,7 @@
 ---
 # defaults file for jitsi
-jitsi_version: stable-8960-1
+jitsi_version: stable-11509-1
+jitsi_image_repo: ghcr.io/jitsi
 jitsi_domain: meet.my.domain
 
 jitsi_http_port: 8000
