@@ -8,26 +8,44 @@
     that: "'docker' in services"
     msg: "This role requires docker"
 
-- name: Preflight | Check Installation status
-  ansible.builtin.stat:
-    path: "{{ jitsi_docker_directory }}/CHANGELOG.md"
-  register: jitsi_docker_version_file
-
-- name: Preflight | Read current version
-  ansible.builtin.shell: "head -1 {{ jitsi_docker_directory }}/CHANGELOG.md | cut -d ' ' -f2"
-  register: jitsi_docker_version
-  when: jitsi_docker_version_file.stat.exists
+- name: Preflight | Check docker compose plugin
+  ansible.builtin.command: docker compose version
+  register: jitsi_compose_check
   changed_when: false
-  tags:
-    - skip_ansible_lint
 
-- name: Install | Install pip packages
-  ansible.builtin.pip:
-    name:
-      - PyYAML==5.3.1
-      - docker-compose==1.29.2
+- name: Preflight | Check installation status
+  ansible.builtin.stat:
+    path: "{{ jitsi_docker_directory }}/.jitsi_version"
+  register: jitsi_version_file
 
-- name: Install | Create directories
+- name: Preflight | Read installed version
+  ansible.builtin.slurp:
+    src: "{{ jitsi_docker_directory }}/.jitsi_version"
+  register: jitsi_version_slurp
+  when: jitsi_version_file.stat.exists
+
+- name: Preflight | Set installed version
+  ansible.builtin.set_fact:
+    jitsi_installed_version: "{{ jitsi_version_slurp.content | default('') | b64decode | trim }}"
+
+- name: Preflight | Read existing env file
+  ansible.builtin.slurp:
+    src: "{{ jitsi_docker_directory }}/.env"
+  register: jitsi_env_slurp
+  failed_when: false
+
+- name: Preflight | Resolve secrets
+  ansible.builtin.set_fact:
+    jitsi_secrets: >-
+      {{ jitsi_secrets | default({}) | combine({
+        item: (jitsi_env_slurp.content | default('') | b64decode
+               | regex_findall('(?m)^' ~ item ~ '=(.+)$') | first
+               | default(lookup('community.general.random_string', length=32, special=false), true))
+      }) }}
+  loop: "{{ jitsi_secret_names }}"
+  no_log: true
+
+- name: Install | Create base directories
   ansible.builtin.file:
     path: "{{ item }}"
     mode: "0750"
@@ -35,7 +53,23 @@
   loop:
     - "{{ jitsi_docker_directory }}"
     - "{{ jitsi_config_directory }}"
-  when: not jitsi_docker_version_file.stat.exists
+
+- name: Install | Hand config directory to the container user
+  ansible.builtin.file:
+    path: "{{ jitsi_config_directory }}"
+    state: directory
+    recurse: true
+    owner: "{{ jitsi_container_uid }}"
+    group: "{{ jitsi_container_gid }}"
+
+- name: Install | Create config subdirectories
+  ansible.builtin.file:
+    path: "{{ jitsi_config_directory }}/{{ item }}"
+    mode: "0755"
+    owner: "{{ jitsi_container_uid }}"
+    group: "{{ jitsi_container_gid }}"
+    state: directory
+  loop: "{{ jitsi_config_subdirectories }}"
 
 - name: Install | Download docker files
   ansible.builtin.unarchive:
@@ -43,7 +77,13 @@
     dest: "{{ jitsi_docker_directory }}"
     remote_src: true
     extra_opts: '--strip-components=1'
-  when: jitsi_docker_version.stdout != jitsi_version
+  when: jitsi_installed_version != jitsi_version
+
+- name: Install | Record installed version
+  ansible.builtin.copy:
+    content: "{{ jitsi_version }}\n"
+    dest: "{{ jitsi_docker_directory }}/.jitsi_version"
+    mode: "0644"
 
 - name: Configuration | Generate env file
   ansible.builtin.template:
@@ -55,4 +95,5 @@
   community.docker.docker_compose_v2:
     project_src: "{{ jitsi_docker_directory }}"
     pull: always
+    recreate: auto
     files: docker-compose.yml
